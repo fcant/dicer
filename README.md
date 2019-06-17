@@ -1,2 +1,0 @@
-# dicer
-uiuiuiiouio
