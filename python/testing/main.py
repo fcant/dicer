@@ -52,7 +52,7 @@ while(True):
     blur = cv2.medianBlur(frame, 5)
 
     #output = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    ret, output = cv2.threshold(frame, 90, 255, cv2.THRESH_BINARY) #Binärer Schwellenwert anwenden
+    ret, output = cv2.threshold(frame, 80, 255, cv2.THRESH_BINARY) #Binärer Schwellenwert anwenden
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
