@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-brightness = 100
+brightness = 0
 
 cap = cv2.VideoCapture(0)
 cv2.VideoCapture.set(cap, 10, brightness)
