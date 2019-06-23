@@ -47,21 +47,17 @@ lmain = Label(root)
 lmain.pack()
 
 
-#def show_frame():
-#    cv2.VideoCapture.set(cap, 10, brightness)
-#    _, frame = cap.read()
-#    frame = cv2.flip(frame, 1)
-#    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-#    img = Image.fromarray(cv2image)
-#    imgtk = ImageTk.PhotoImage(image=img)
-#    lmain.imgtk = imgtk
-#    lmain.configure(image=imgtk)
-#    lmain.after(10, show_frame)
-
 def show_frame():
-    _, frame = cap.read()
+    cv2.VideoCapture.set(cap, 10, brightness)
+    ret, frame = cap.read()
     frame = cv2.flip(frame, 1)
-    cv2.imshow('frame', frame)
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(50, show_frame)
+
 
 show_frame()
 root.mainloop()

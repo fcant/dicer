@@ -1,49 +1,109 @@
 import cv2
 import numpy as np
 
-binary_value = 100 #startwerte
-#trackbar_val =0
 
 def binary(input_value):
     global binary_value
+    if input_value == 0:
+        input_value = 1
     binary_value = input_value
-    print(input_value)
 
-try:
-    cap = cv2.VideoCapture(0)
-except ValueError:
-    print('Keine Kamera!')
 
-empty = cv2.imread('empty.png',0) # >0: 3 channel, =0: grau, <0: bild + alpha
+def brightness(input_value):
+    global brightness_value
+    brightness_value = input_value
 
-params = cv2.SimpleBlobDetector_Params()
-params.filterByColor = True
-params.filterByArea = True
-params.minArea = 100
-params.filterByCircularity = False
-params.filterByInertia = True
-params.filterByConvexity = True
+
+def contrast(input_value):
+    global contrast_value
+    contrast_value = input_value
+
+
+def saturation(input_value):
+    global saturation_value
+    saturation_value = input_value
+
+
+def hue(input_value):
+    global hue_value
+    hue_value = input_value
+
+
+def gain(input_value):
+    global gain_value
+    gain_value = input_value
+
+
+def exposure(input_value):
+    global exposure_value
+    exposure_value = input_value
+
+
+cap = cv2.VideoCapture(0)
+
+#startwerte
+binary_value = 100
+
+brightness_value = int(cap.get(10))
+contrast_value = int(cap.get(11))
+saturation_value = int(cap.get(12))
+hue_value = int(cap.get(13))
+gain_value = 0
+exposure_value = 0
 
 main_window='OUTPUT - Press Q to close this'
 cv2.namedWindow(main_window)
-cv2.createTrackbar('Trackbar', main_window, binary_value, 255, binary)
+error_image = cv2.imread('camera_error.png',1)
 
+
+
+empty = cv2.imread('empty.png',0) # >0: 3 channel, =0: grau, <0: bild + alpha
+
+blob_params = cv2.SimpleBlobDetector_Params()
+
+blob_params.filterByColor = True
+blob_params.filterByArea = True
+blob_params.minArea = 100
+blob_params.filterByCircularity = False
+blob_params.filterByInertia = True
+blob_params.filterByConvexity = True
+
+cv2.createTrackbar('Binary', main_window, binary_value, 255, binary)
+cv2.createTrackbar('Brightness', main_window, brightness_value, 255, brightness)
+cv2.createTrackbar('Contrast', main_window, contrast_value, 255, contrast)
+cv2.createTrackbar('Saturation', main_window, saturation_value, 255, saturation)
+cv2.createTrackbar('Hue', main_window, hue_value, 255, hue)
+cv2.createTrackbar('Gain', main_window, gain_value, 255, gain)
+cv2.createTrackbar('Exposure', main_window, 0, 5, exposure)
 
 while(True):
     # Capture frame-by-frame
 
+    cap.set(10, brightness_value)      #Brightness
+    cap.set(11, contrast_value)    #Contrast
+    cap.set(12, saturation_value)    #Saturation
+    cap.set(13, hue_value)    #Hue
+    cap.set(14, gain_value)    #Gain
+    cap.set(15, exposure_value)    #Exposure
+
+
+
+
     ret, real_frame = cap.read() # ret gibt true oder false zurück, checkt ob video läuft
 
     if ret == 0:
-        cv2.imshow('INPUT_BINARY', binary_image)
+        cv2.imshow('OUTPUT', error_image)
+        cv2.waitKey()
         break
 
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen
 
+    cv2.imshow('INPUT', input_frame)
+
     cv2.absdiff(input_frame, empty, input_frame)  #mit leerer Hintergrundaufnahme subtrahieren
 
-    cv2.imshow('INPUT', input_frame)
+
 
     ret, binary_image = cv2.threshold(input_frame, binary_value, 255, cv2.THRESH_BINARY)
 
@@ -65,7 +125,7 @@ while(True):
 
     closing_neg = cv2.bitwise_not(closing)
 
-    detector = cv2.SimpleBlobDetector_create(params)
+    detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(closing_neg)
 
 
