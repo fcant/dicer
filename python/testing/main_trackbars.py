@@ -47,9 +47,9 @@ binary_value = 100
 brightness_value = int(cap.get(10))
 contrast_value = int(cap.get(11))
 saturation_value = int(cap.get(12))
-hue_value = int(cap.get(13))
-gain_value = 0
-exposure_value = 0
+#hue_value = int(cap.get(13))
+#gain_value = 0
+#exposure_value = 0
 
 main_window='OUTPUT - Press Q to close this'
 cv2.namedWindow(main_window)
@@ -72,9 +72,9 @@ cv2.createTrackbar('Binary', main_window, binary_value, 255, binary)
 cv2.createTrackbar('Brightness', main_window, brightness_value, 255, brightness)
 cv2.createTrackbar('Contrast', main_window, contrast_value, 255, contrast)
 cv2.createTrackbar('Saturation', main_window, saturation_value, 255, saturation)
-cv2.createTrackbar('Hue', main_window, hue_value, 255, hue)
-cv2.createTrackbar('Gain', main_window, gain_value, 255, gain)
-cv2.createTrackbar('Exposure', main_window, 0, 5, exposure)
+#cv2.createTrackbar('Hue', main_window, hue_value, 255, hue)
+#cv2.createTrackbar('Gain', main_window, gain_value, 255, gain)
+#cv2.createTrackbar('Exposure', main_window, 0, 5, exposure)
 
 while(True):
     # Capture frame-by-frame
@@ -82,9 +82,9 @@ while(True):
     cap.set(10, brightness_value)      #Brightness
     cap.set(11, contrast_value)    #Contrast
     cap.set(12, saturation_value)    #Saturation
-    cap.set(13, hue_value)    #Hue
-    cap.set(14, gain_value)    #Gain
-    cap.set(15, exposure_value)    #Exposure
+    #cap.set(13, hue_value)    #Hue
+#    cap.set(14, gain_value)    #Gain
+    #cap.set(15, exposure_value)    #Exposure
 
 
 
@@ -92,14 +92,14 @@ while(True):
     ret, real_frame = cap.read() # ret gibt true oder false zurück, checkt ob video läuft
 
     if ret == 0:
-        cv2.imshow('OUTPUT', error_image)
+        cv2.imshow(main_window, error_image)
         cv2.waitKey()
         break
 
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen
 
-    cv2.imshow('INPUT', input_frame)
+#    cv2.imshow('INPUT', input_frame)
 
     cv2.absdiff(input_frame, empty, input_frame)  #mit leerer Hintergrundaufnahme subtrahieren
 
@@ -107,7 +107,7 @@ while(True):
 
     ret, binary_image = cv2.threshold(input_frame, binary_value, 255, cv2.THRESH_BINARY)
 
-    cv2.imshow('INPUT_BINARY', binary_image)
+#    cv2.imshow('INPUT_BINARY', binary_image)
 
     #binary_image_neg = cv2.bitwise_not(binary_image)
     #binary_image_neg = cv2.medianBlur(binary_image_neg, 5)
@@ -120,8 +120,8 @@ while(True):
     #erosion = cv2.dilate(binary_image, kernel, iterations=2)
     #cv2.imshow(main_window, erosion)
 
-    cv2.imshow('Opening', opening)
-    cv2.imshow('Closing', closing)
+#    cv2.imshow('Opening', opening)
+#    cv2.imshow('Closing', closing)
 
     closing_neg = cv2.bitwise_not(closing)
 
