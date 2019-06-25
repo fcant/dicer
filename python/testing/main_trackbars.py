@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+black_dice = True
 
 def binary(input_value):
     global binary_value
@@ -99,13 +100,16 @@ while(True):
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen
 
-#    cv2.imshow('INPUT', input_frame)
+    cv2.imshow('INPUT', input_frame)
 
     cv2.absdiff(input_frame, empty, input_frame)  #mit leerer Hintergrundaufnahme subtrahieren
 
-
-
     ret, binary_image = cv2.threshold(input_frame, binary_value, 255, cv2.THRESH_BINARY)
+
+
+
+    if black_dice == True:
+
 
 #    cv2.imshow('INPUT_BINARY', binary_image)
 

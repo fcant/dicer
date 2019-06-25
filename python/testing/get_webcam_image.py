@@ -7,7 +7,7 @@ ret, frame = cap.read() #ret gibt true oder false zurück, checkt ob video läuf
 grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 #cv2.imwrite("empty.png", frame)
-cv2.imwrite("dice_side.png", grey)
+cv2.imwrite("dark_dice.png", grey)
 
 cap.release()
 cv2.destroyAllWindows()
