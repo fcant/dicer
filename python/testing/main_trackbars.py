@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
 
+dark_dice = True
 
 def binary(input_value):
     global binary_value
     if input_value == 0:
         input_value = 1
+
+    print(binary_value)
     binary_value = input_value
 
 
@@ -99,15 +102,13 @@ while(True):
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen
 
-#    cv2.imshow('INPUT', input_frame)
+    cv2.imshow('INPUT', input_frame)
 
     cv2.absdiff(input_frame, empty, input_frame)  #mit leerer Hintergrundaufnahme subtrahieren
 
-
-
     ret, binary_image = cv2.threshold(input_frame, binary_value, 255, cv2.THRESH_BINARY)
 
-#    cv2.imshow('INPUT_BINARY', binary_image)
+    cv2.imshow('INPUT_BINARY', binary_image)
 
     #binary_image_neg = cv2.bitwise_not(binary_image)
     #binary_image_neg = cv2.medianBlur(binary_image_neg, 5)
@@ -123,14 +124,45 @@ while(True):
 #    cv2.imshow('Opening', opening)
 #    cv2.imshow('Closing', closing)
 
+    if dark_dice == True:
+
+
+        edges = cv2.Canny(closing, 100, 200)
+
+        contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+
+
+
+        if len(contours) > 0:
+            cnt = contours[0]
+        else:
+            print("Sorry No contour Found.")
+
+        x, y, w, h = cv2.boundingRect(cnt)
+        cv2.rectangle(closing, (x, y), (x + w, y + h), (158, 255, 0), 2) ##################
+
+        img_crop = closing#[y:y + h, x:x + w]
+
+        w = img_crop.shape[1]  # y
+        h = img_crop.shape[0]  # x
+
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+
+        cv2.floodFill(img_crop, mask, (0, 0), 255);
+
+    cv2.imshow('mask', closing)
+
+    cv2.imshow('area', img_crop)
+
     closing_neg = cv2.bitwise_not(closing)
 
     detector = cv2.SimpleBlobDetector_create(blob_params)
-    keypoints = detector.detect(closing_neg)
+    keypoints = detector.detect(img_crop)
 
 
 
-    img_with_keypoints = cv2.drawKeypoints(closing_neg, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    img_with_keypoints = cv2.drawKeypoints(img_crop, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     number = 0
     for i in keypoints[0:]:
         number = number + 1

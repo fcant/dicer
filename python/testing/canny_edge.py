@@ -3,39 +3,39 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-img = cv2.imread('dice.png',0)
+img = cv2.imread('dark_dice.png',0)
+
+empty = cv2.imread('empty.png',0) # >0: 3 channel, =0: grau, <0: bild + alpha
+
+cv2.absdiff(img, empty, img)
+q
+cv2.imshow('DIFF', img)
+
 blur = cv2.medianBlur(img, 5)
 
+ret, binary_image = cv2.threshold(blur, 65, 255, cv2.THRESH_BINARY)
 
-def trackbar_test(buffer):
-    print(buffer)
-    ret, binary_image = cv2.threshold(blur, buffer, 255, cv2.THRESH_BINARY)  # Binärer Schwellenwert anwenden
-    cv2.imshow('TEST', binary_image)
+edges = cv2.Canny(binary_image, 100, 200)
 
-
-edges = cv2.Canny(blur, 100, 200)
 contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+cnt = contours[0]
 
-#cv2.findContours(edges, mode, method[, contours[, hierarchy[, offset]]])
+x,y,w,h = cv2.boundingRect(cnt)
+cv2.rectangle(binary_image,(x,y),(x+w,y+h),(0,255,0),2)
 
-cv2.namedWindow('TEST')
-buffer=0
-cv2.createTrackbar('Trackbar', 'TEST', buffer, 255,trackbar_test)
-trackbar_test(buffer)
+img_crop = binary_image[y:y+h, x:x+w]
 
-for i in range(256):
-    trackbar_test(i)
-    cv2.setTrackbarPos('Trackbar', 'TEST', i)
-    cv2.waitKey(200)
+w = img_crop.shape[1] #y
+h = img_crop.shape[0] #x
 
+mask = np.zeros((h + 2, w + 2), np.uint8)
 
-#cv2.imshow('TEST', img)
+cv2.floodFill(img_crop, mask, (0,0), 255);
 
-#cv2.imshow('TEST2', blur)
+cv2.imshow('area', img_crop)
 
 
-#numpy_horizontal_concat = np.concatenate((img, binary_image, edges), axis=1)
-#cv2.imshow('Press Q to close this', numpy_horizontal_concat)
+#cv2.drawContours(empty, contours, -1, (0,255,0), 3)
 
 cv2.waitKey()
