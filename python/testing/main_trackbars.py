@@ -132,14 +132,19 @@ while(True):
         contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 
-
+        
 
         if len(contours) > 0:
             cnt = contours[0]
+            x, y, w, h = cv2.boundingRect(cnt)
         else:
             print("Sorry No contour Found.")
+            x=0
+            y=0
+            w=0
+            h=0
 
-        x, y, w, h = cv2.boundingRect(cnt)
+
         cv2.rectangle(closing, (x, y), (x + w, y + h), (158, 255, 0), 2) ##################
 
         img_crop = closing#[y:y + h, x:x + w]

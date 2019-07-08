@@ -11,6 +11,7 @@ root = Tk()
 #ret, frame = cap.read() #ret gibt true oder false zurück, checkt ob video läuft
 
 
+
 def forward():
     stand = int(labelZahl.cget('text'))
     stand = stand + 1
@@ -23,6 +24,8 @@ def back():
     labelZahl.config(text=str(stand))
 
 
+
+
 labelZahl = Label(root, text='50')
 labelZahl.pack()
 
@@ -32,13 +35,15 @@ topFrame.pack(side=TOP)
 bottomFrame = Frame(root)
 bottomFrame.pack(side=BOTTOM)
 
+neg=IntVar()
+C1 = Checkbutton(bottomFrame, text="negativ", variable=neg).grid(row=0, sticky=W)
+
 button1 = Button(bottomFrame, text='+', fg='red', command=forward)
 button2 = Button(bottomFrame, text='-', fg='blue', command=back)
 
 cap = cv2.VideoCapture(0)
 
 brightness = int(labelZahl.cget('text'))
-
 
 button1.pack(side=TOP)
 button2.pack(side=LEFT)
@@ -56,7 +61,7 @@ def show_frame():
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
-    lmain.after(50, show_frame)
+    lmain.after(10, show_frame)
 
 
 show_frame()
