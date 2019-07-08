@@ -3,7 +3,7 @@ import cv2
 
 brightness = 0
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cv2.VideoCapture.set(cap, 10, brightness)
 
 while(True):
@@ -15,6 +15,7 @@ while(True):
 
     # Display the resulting frame
     cv2.imshow('frame',gray)
+
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
