@@ -2,8 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ee7b99a-6d81-455d-b3d2-cc18029e9566" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/spannring_achse.0003.ipt" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/testing/tkinter_test2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dicer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dicer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/LED_Ring.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/LED_Ring.ipt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/LED_Ring.0010.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/gesamt.0012.iam" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/halter_seite.0012.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/halter_seite_lager.0002.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/spannring_achse.0008.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/spannring_achse_lager.0003.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/spannring_achse_lager.0006.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/OldVersions/spiegelhalter.0002.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/endkappen_glashalter.stl" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/endkappen_glashalter.stl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/gesamt.iam" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/gesamt.iam" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/halter_seite.ipt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/halter_seite_lager.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/halter_seite_lager.ipt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/spannring.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/spannring.ipt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventor/spannring_achse.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/spannring_achse.ipt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/spannring_achse_lager.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/spannring_achse_lager.ipt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventor/spiegelhalter.ipt" beforeDir="false" afterPath="$PROJECT_DIR$/inventor/spiegelhalter.ipt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,13 +45,34 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="161" lean-forward="true" selection-start-line="161" selection-end-line="161" />
+            <state relative-caret-position="2958">
+              <caret line="175" column="13" selection-start-line="175" selection-start-column="13" selection-end-line="175" selection-end-column="13" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test2.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="391">
+              <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -117,6 +157,7 @@
         <option value="$PROJECT_DIR$/python/testing/get_webcam_image.py" />
         <option value="$PROJECT_DIR$/python/testing/canny_edge.py" />
         <option value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
+        <option value="$PROJECT_DIR$/python/testing/tkinter_test2.py" />
       </list>
     </option>
   </component>
@@ -134,6 +175,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -156,7 +198,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -182,7 +223,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.main_trackbars">
+  <component name="RunManager" selected="Python.tkinter_test2">
     <configuration name="canny_edge" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -267,7 +308,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="tkinter_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="tkinter_test2" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -279,7 +320,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/tkinter_test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/tkinter_test2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -290,11 +331,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.tkinter_test2" />
         <item itemvalue="Python.main_trackbars" />
         <item itemvalue="Python.canny_edge" />
         <item itemvalue="Python.get_webcam_image" />
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.tkinter_test" />
       </list>
     </recent_temporary>
   </component>
@@ -314,12 +355,12 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1616" height="870" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15272497" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15272497" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.31493506" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.31436315" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -368,16 +409,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="14" selection-start-line="4" selection-start-column="14" selection-end-line="4" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -437,6 +468,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2958">
+          <caret line="175" column="13" selection-start-line="175" selection-start-column="13" selection-end-line="175" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/get_webcam_image.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
@@ -471,12 +512,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
+    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="161" lean-forward="true" selection-start-line="161" selection-end-line="161" />
+        <state relative-caret-position="255">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="23" column="23" lean-forward="true" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
