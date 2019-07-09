@@ -1,9 +1,18 @@
 import numpy as np
 import cv2
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setwarnings(False)
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
+GPIO.setup(4, GPIO.OUT)
+
 
 brightness = 0
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cv2.VideoCapture.set(cap, 10, brightness)
 
 while(True):
@@ -27,7 +36,7 @@ while(True):
 
     M = cv2.moments(binary_image)
 
-    #print(M)
+    print(M)
 
     if M["m00"] != 0:
         cX = int(M["m10"] / M["m00"])
@@ -51,11 +60,17 @@ while(True):
     # Display the resulting frame
     cv2.imshow('frame',frame)
 
-    if(cX < 305):
+ 
+    if(cX < 100):
+        GPIO.output(17, GPIO.HIGH)
+        GPIO.output(4, GPIO.HIGH)
+        time.sleep(0.05)
+        GPIO.output(4, GPIO.LOW)
+    elif(cX >300):
         GPIO.output(17, GPIO.LOW)
-
-
-
+        GPIO.output(4, GPIO.HIGH)
+        time.sleep(0.05)
+        GPIO.output(4, GPIO.LOW)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
