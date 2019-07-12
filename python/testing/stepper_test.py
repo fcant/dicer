@@ -7,22 +7,26 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(17, GPIO.OUT)
 GPIO.setup(4, GPIO.OUT)
 
+#steptime = 0.0002
+
 while(True):
     time.sleep(3)
     GPIO.output(17, GPIO.LOW)
 
-    for i in range(100):
-        if (i >= 70 and i < 90):
-            print("60")
-            steptime = 0.02
-        elif (i>= 90):
-            steptime = 0.03
+    
+
+    for i in range(3200):
+        if (i >= 2500 and i < 3100):
+            steptime = 0.0006
+        if (i>= 2900):
+            steptime = 0.0009
         else:
-            steptime = 0.01
+            steptime = 0.0002
         GPIO.output(4, GPIO.HIGH)
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
-        time.sleep(steptime)
+        time.sleep(steptime)   
+    
 
 #    time.sleep(5)
 #    GPIO.output(17, GPIO.HIGH)
