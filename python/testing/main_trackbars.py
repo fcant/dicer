@@ -42,7 +42,7 @@ def exposure(input_value):
     exposure_value = input_value
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 #startwerte
 binary_value = 100

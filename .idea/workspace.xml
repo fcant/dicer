@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ee7b99a-6d81-455d-b3d2-cc18029e9566" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/python/testing/stapper_position.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/testing/get_webcam_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/get_webcam_image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/testing/show_webcam.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/show_webcam.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/testing/main_trackbars.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/main_trackbars.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/testing/stapper_position.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/stapper_position.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,25 +27,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="310">
-              <caret line="115" column="2" lean-forward="true" selection-start-line="115" selection-start-column="2" selection-end-line="115" selection-end-column="38" />
+            <state relative-caret-position="102">
+              <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python/testing/stapper_position.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
-              <caret line="53" column="17" lean-forward="true" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -55,8 +42,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/python/testing/stepper_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="33" lean-forward="true" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="33" />
+            <state relative-caret-position="289">
+              <caret line="18" selection-start-line="18" selection-end-line="18" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -131,11 +118,11 @@
         <option value="$PROJECT_DIR$/python/testing/main.py" />
         <option value="$PROJECT_DIR$/python/testing/tkinter_test.py" />
         <option value="$PROJECT_DIR$/python/testing/canny_edge.py" />
-        <option value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
         <option value="$PROJECT_DIR$/python/testing/tkinter_test2.py" />
         <option value="$PROJECT_DIR$/python/testing/show_webcam.py" />
         <option value="$PROJECT_DIR$/python/testing/get_webcam_image.py" />
         <option value="$PROJECT_DIR$/python/testing/stapper_position.py" />
+        <option value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
       </list>
     </option>
   </component>
@@ -153,6 +140,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -175,7 +163,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -202,7 +189,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.stapper_position">
+  <component name="RunManager" selected="Python.main_trackbars">
     <configuration name="get_webcam_image" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -310,11 +297,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main_trackbars" />
         <item itemvalue="Python.stapper_position" />
         <item itemvalue="Python.get_webcam_image" />
         <item itemvalue="Python.show_webcam" />
         <item itemvalue="Python.tkinter_test2" />
-        <item itemvalue="Python.main_trackbars" />
       </list>
     </recent_temporary>
   </component>
@@ -436,34 +423,6 @@
     <entry file="file://$PROJECT_DIR$/python/testing/dark_dice.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="816">
-          <caret line="70" selection-start-line="70" selection-end-line="71" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-            <element signature="e#71#686#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="918">
-          <caret line="57" column="30" selection-start-line="57" selection-start-column="30" selection-end-line="57" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/show_image.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
@@ -491,6 +450,27 @@
     <entry file="file://$PROJECT_DIR$/python/testing/moment_test.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="70" selection-start-line="70" selection-end-line="71" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#71#686#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/stepper_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/canny_edge.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
@@ -501,32 +481,36 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
+    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="115" column="2" lean-forward="true" selection-start-line="115" selection-start-column="2" selection-end-line="115" selection-end-column="38" />
+        <state relative-caret-position="918">
+          <caret line="57" column="30" selection-start-line="57" selection-start-column="30" selection-end-line="57" selection-end-column="30" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/stepper_test.py">
+    <entry file="file://$PROJECT_DIR$/python/testing/show_image.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="33" lean-forward="true" selection-start-line="16" selection-start-column="33" selection-end-line="16" selection-end-column="33" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="34">
+          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/stapper_position.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="53" column="17" lean-forward="true" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
+        <state>
+          <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
