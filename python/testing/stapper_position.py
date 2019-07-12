@@ -1,7 +1,5 @@
 import numpy as np
 import cv2
-import RPi.GPIO as GPIO
-import time
 
 GPIO.setwarnings(False)
 
@@ -12,7 +10,7 @@ GPIO.setup(4, GPIO.OUT)
 
 brightness = 0
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cv2.VideoCapture.set(cap, 10, brightness)
 
 while(True):
