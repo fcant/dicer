@@ -8,6 +8,13 @@ GPIO.setup(17, GPIO.OUT)
 GPIO.setup(4, GPIO.OUT)
 
 
+def step():
+
+    GPIO.output(4, GPIO.HIGH)
+    time.sleep(0.05)
+    GPIO.output(4, GPIO.LOW)
+    time.sleep(0.05)
+
 brightness = 0
 
 cap = cv2.VideoCapture(1)
@@ -15,6 +22,9 @@ cv2.VideoCapture.set(cap, 10, brightness)
 
 while(True):
     # Capture frame-by-frame
+
+    print("new picture")
+    
     ret, frame = cap.read()
 
     # Our operations on the frame come here
@@ -34,7 +44,7 @@ while(True):
 
     M = cv2.moments(binary_image)
 
-    print(M)
+    #print(M)
 
     if M["m00"] != 0:
         cX = int(M["m10"] / M["m00"])
@@ -48,28 +58,23 @@ while(True):
 
     print("X:", cX, "Y:", cY)
 
-    x=400
-    y=360
-    h=40
-    w=70
-
-    img_crop = binary_image[y:y + h, x:x + w]
-
     # Display the resulting frame
     cv2.imshow('frame',frame)
 
  
-    if(cX < 100):
+    if(cX < 290):
         GPIO.output(17, GPIO.HIGH)
         GPIO.output(4, GPIO.HIGH)
-        time.sleep(0.05)
+        time.sleep(0.01)
         GPIO.output(4, GPIO.LOW)
+        time.sleep(0.05)        
     elif(cX >300):
         GPIO.output(17, GPIO.LOW)
         GPIO.output(4, GPIO.HIGH)
-        time.sleep(0.05)
+        time.sleep(0.01)
         GPIO.output(4, GPIO.LOW)
-
+        time.sleep(0.05)        
+    
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
