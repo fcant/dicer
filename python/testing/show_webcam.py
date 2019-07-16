@@ -1,3 +1,5 @@
+
+import time
 import numpy as np
 import cv2
 
@@ -8,14 +10,24 @@ cv2.VideoCapture.set(cap, 10, brightness)
 
 while(True):
     # Capture frame-by-frame
+
+
     ret, frame = cap.read()
 
     # Our operations on the frame come here
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Display the resulting frame
-    cv2.imshow('frame',gray)
+    y=200
+    h=230
+    
+    x=260
+    w=250
 
+    grey = grey[y:y + h, x:x + w]
+
+    cv2.imshow('raw',grey)
+
+    cv2.imshow('output',grey)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
