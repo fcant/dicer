@@ -22,6 +22,7 @@ cap = cv2.VideoCapture(0)
 
 steptime = 0.0003
 
+wurfzahl=0
 one = 0
 two=0
 three=0
@@ -44,6 +45,8 @@ while(True):
         time.sleep(steptime)  
 
     time.sleep(2)
+
+
     for i in range(5):
     
         ret, frame = cap.read()
@@ -88,6 +91,8 @@ while(True):
 
     img_with_keypoints = cv2.drawKeypoints(closing, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     
+    
+    
     number = 0
     
     for i in keypoints[0:]:
@@ -109,12 +114,14 @@ while(True):
     elif number == 6:
         six = six + 1
     elif number > 6 or number < 1:
-        cv2.imwrite(errorcnt + 'Fehlerbild', img_with_keypoints)
-        errorcnt = errorcnt +1
-        print('FEHLER')
-        if errcnt == 100:
+        cv2.imwrite(str(errorcnt) + 'Fehlerbild.png', img_with_keypoints)
+        errorcnt = errorcnt + 1
+        print('FEHLER')   
+        if errorcnt == 100:
             errorcnt = 1
-        
+        wurfzahl = wurfzahl - 1 
+    
+    wurfzahl = wurfzahl + 1     
 
     print("=======================")
     print("Einz: ", one)
@@ -123,6 +130,7 @@ while(True):
     print("Vier: ", four)
     print("Fuenf: ", five)
     print("Sechs: ", six)
+    print('Gesamt: ', wurfzahl)
 
     cv2.imshow('output',img_with_keypoints)
 
