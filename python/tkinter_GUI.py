@@ -4,6 +4,9 @@ from tkinter import *
 from PIL import ImageTk,Image
 import RPi.GPIO as GPIO
 import time
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
 #cap = cv2.VideoCapture(0)
@@ -109,6 +112,18 @@ output_image.grid(row=0, column=1)
 detected_number = Label(topFrame, text='0', padx=50, pady=50)
 detected_number.config(font=("Courier", 44))
 detected_number.grid(row=0, column=2)
+
+
+fig = Figure()
+    
+ax = fig.add_subplot(111)
+ax.set_xlabel('X AChse')
+ax.set_ylabel('yacvhse')
+ax.grid
+        
+canvas = FigureCanvasTkAgg(fig, topFrame)
+canvas.get_tk_widget().grid(row=0, column=4)
+canvas.draw()
 
 def mainprogram():
     image = get_image()
@@ -255,6 +270,13 @@ def counting(grey):
     print('Gesamt: ', wurfzahl)
 
     cv2image = cv2.cvtColor(img_with_keypoints, cv2.COLOR_BGR2RGBA)
+    
+    values = [one,two,three,four,five,six]
+    
+    ax.cla()
+    ax.bar(range(6), values)
+    canvas.draw()
+    
     
     img = Image.fromarray(cv2image)
     imgtk = ImageTk.PhotoImage(image=img)
