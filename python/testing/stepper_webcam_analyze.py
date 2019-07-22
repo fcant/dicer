@@ -71,10 +71,12 @@ while(True):
     kernel = np.ones((6, 6), np.uint8)
 
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
+    erosion = cv2.erode(opening, kernel, iterations = 1)
+    
     #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
-    closing = opening
-
+    closing =  erosion
+    cv2.imshow('erosion',erosion)
     cv2.imshow('closing',closing)
     
     closing = cv2.bitwise_not(closing)
@@ -114,7 +116,7 @@ while(True):
     elif number == 6:
         six = six + 1
     elif number > 6 or number < 1:
-        cv2.imwrite(str(errorcnt) + 'Fehlerbild.png', img_with_keypoints)
+        cv2.imwrite(str(errorcnt) + 'error.png', grey)
         errorcnt = errorcnt + 1
         print('FEHLER')   
         if errorcnt == 100:
@@ -123,7 +125,7 @@ while(True):
     
     wurfzahl = wurfzahl + 1     
 
-    print("=======================")
+    print("=======================")q
     print("Einz: ", one)
     print("Zwei: ", two)
     print("Drei: ", three)
@@ -137,6 +139,8 @@ while(True):
 
     if cv2.waitKey(100) & 0xFF == ord('q'):
         break
+    if cv2.waitKey(100) & 0xFF == ord('s'):
+        cv2.imwrite(str(wurfzahl) + 'Fehlerbild.png', grey)
     
 
     

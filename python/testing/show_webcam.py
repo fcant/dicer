@@ -5,6 +5,15 @@ import cv2
 
 brightness = 0
 
+blob_params = cv2.SimpleBlobDetector_Params()
+
+blob_params.filterByColor = True
+blob_params.filterByArea = True
+blob_params.minArea = 100
+blob_params.filterByCircularity = False
+blob_params.filterByInertia = True
+blob_params.filterByConvexity = True
+
 cap = cv2.VideoCapture(0)
 cv2.VideoCapture.set(cap, 10, brightness)
 
@@ -14,8 +23,10 @@ while(True):
 
     ret, frame = cap.read()
 
-    # Our operations on the frame come here
+    # Our operations qon the frame come here
     grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+
 
     y=200
     h=230
@@ -25,12 +36,53 @@ while(True):
 
     grey = grey[y:y + h, x:x + w]
 
+    if cv2.waitKey(1) & 0xFF == ord('s'):
+        cv2.imwrite('testbild_sechs', grey)
+
+
     cv2.imshow('raw',grey)
 
-    cv2.imshow('output',grey)
+    ret, binary_image = cv2.threshold(grey, 230, 255, cv2.THRESH_BINARY)
+
+    cv2.imshow('binary',binary_image)
+
+    kernel = np.ones((6, 6), np.uint8)
+
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
+    erosion = cv2.erode(opening, kernel, iterations = 1)
+    
+    #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
+
+    closing =  erosion
+    cv2.imshow('erosion',erosion)
+    cv2.imshow('closing',closing)
+    
+    closing = cv2.bitwise_not(closing)
+
+    w = closing.shape[1]  # y
+    h = closing.shape[0]  # x
+
+    mask = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(closing, mask, (0, 0), 255);
+    cv2.floodFill(closing, mask, (0, 200), 255);
+
+    detector = cv2.SimpleBlobDetector_create(blob_params)
+    keypoints = detector.detect(closing)
+
+    img_with_keypoints = cv2.drawKeypoints(closing, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    
+    number = 0
+    
+    for i in keypoints[0:]:
+        number = number + 1
+    print(number)
+
+    cv2.imshow('output',img_with_keypoints)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    
 
 # When everything done, release the capture
 cap.release()

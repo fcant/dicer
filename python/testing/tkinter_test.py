@@ -45,8 +45,8 @@ cap = cv2.VideoCapture(0)
 
 brightness = int(labelZahl.cget('text'))
 
-button1.pack(side=TOP)
-button2.pack(side=LEFT)
+#button1.pack(side=TOP)
+#button2.pack(side=LEFT)
 
 lmain = Label(root)
 lmain.pack()
@@ -61,7 +61,7 @@ def show_frame():
     imgtk = ImageTk.PhotoImage(image=img)
     lmain.imgtk = imgtk
     lmain.configure(image=imgtk)
-    lmain.after(10, show_frame)
+    lmain.after(5, show_frame)
 
 
 show_frame()
