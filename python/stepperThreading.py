@@ -1,7 +1,3 @@
-import numpy as np
-import cv2
-from tkinter import *
-from PIL import ImageTk,Image
 import RPi.GPIO as GPIO
 import time
 import threading
@@ -15,7 +11,7 @@ GPIO.setup(4, GPIO.OUT)
 
 running = 0
 
-class myThread (threading.Thread):
+class stepperThreading (threading.Thread):
    def __init__(self, threadID, name, counter):
       threading.Thread.__init__(self)
       self.threadID = threadID
@@ -41,7 +37,6 @@ def stepper():
     time.sleep(2)
     running = 0
 
-cap = cv2.VideoCapture(0)
 
 # Create new threads
 #thread1 = myThread(1, "Thread-1", 1)
