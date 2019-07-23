@@ -27,7 +27,7 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
-wurfzahl=0
+rollnumber=0
 one=0
 two=0
 three=0
@@ -48,41 +48,45 @@ steptime = 0.0003
 #    labelZahl.config(text=str(stand))
     
     
-running = 0
+stepper_running = 0
+imgshow_running = 0
+ready_for_img = 0
 
-class myThread (threading.Thread):
-   def __init__(self, threadID, name, counter):
-      threading.Thread.__init__(self)
-      self.threadID = threadID
-      self.name = name
-      self.counter = counter
-   def run(self):
-      print ("Starting " + self.name)
-      stepper()
-      print ("Exiting " + self.name)
+class stepperThread (threading.Thread):
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+    def run(self):
+        global stepper_running
+        global ready_for_img
+        ready_for_img = 0
+        stepper_running = 1
+        stepper()
+        ready_for_img = 1
+        print ("============Exiting " + self.name)
       
 class showInputThread (threading.Thread):
-   def __init__(self, threadID, name, counter):
-      threading.Thread.__init__(self)
-      self.threadID = threadID
-      self.name = name
-      self.counter = counter
-   def run(self):
-      print ("Starting " + self.name)
-      grey = get_image()
-      show_input(grey)
-      keypoints, number = img_processing(grey)
-      show_output(img_processing(grey))
-      print ("Exiting " + self.name)     
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+    def run(self):
+        global imgshow_running
+        imgshow_running = 1
+        grey = get_image()
+        show_input(grey)
+        keypoint_img = img_processing(grey)
+        number = counting(keypoint_img)
+        show_output(keypoint_img)
+        imgshow_running = 0
       
 
 def stepper():
-    global running
-    global ready
-    global image_finished
-    
-    ready = 0
-    running = 1
+
+    time.sleep(0.5)
     for i in range(3200):
         if (i > 3000):
             steptime = 0.0006
@@ -93,9 +97,7 @@ def stepper():
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
     time.sleep(2)
-    ready = 1
-    time.sleep(2)
-    running = 0
+
 
 def slider_plus():
     stand = binary_slider.get()
@@ -124,24 +126,21 @@ def step_minus():
 
 def get_image():
     
-    for i in range(3):
+    for i in range(2):
         ret, frame = cap.read()
    
     y=200
     h=230
     
-    x=260
-    w=250
+    x=280
+    w=220
 
-    frame = frame[y:y + h, x:x + w]  
-    grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    print('get image fin')
+    frame1 = frame[y:y + h, x:x + w]  
+    grey = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
     return grey
 
 
 def img_processing(grey):
-    
-
     
     ret, binary_image = cv2.threshold(grey, 230, 255, cv2.THRESH_BINARY)
 
@@ -153,7 +152,6 @@ def img_processing(grey):
     #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
     closing =  erosion
-    
     closing = cv2.bitwise_not(closing)
 
     w = closing.shape[1]  # y
@@ -162,27 +160,12 @@ def img_processing(grey):
     mask = np.zeros((h + 2, w + 2), np.uint8)
     cv2.floodFill(closing, mask, (0, 0), 255);
     cv2.floodFill(closing, mask, (0, 200), 255);
+    
+    return closing
 
-
-
-    detector = cv2.SimpleBlobDetector_create(blob_params)
-    keypoints = detector.detect(closing)
-
-    img_with_keypoints = cv2.drawKeypoints(closing, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+def counting(image):
     
-    
-    
-    number = 0
-    
-    for i in keypoints[0:]:
-        number = number + 1
-    #print(number)
-    
-    return img_with_keypoints,number
-
-def counting(number):
-    
-    global wurfzahl
+    global rollnumber
     global one
     global two
     global three
@@ -190,6 +173,18 @@ def counting(number):
     global five
     global six
     global errorcnt
+    
+    detector = cv2.SimpleBlobDetector_create(blob_params)
+    keypoints = detector.detect(image)
+    img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    number = 0
+    
+    for i in keypoints[0:]:
+        number = number + 1
+    #print(number)
+    
+    print('counting')
     
     if number == 1:
         one = one +1
@@ -215,46 +210,35 @@ def counting(number):
     #    print('FEHLER')   
      #   if errorcnt == 100:
       #      errorcnt = 1
+      
+    rollnumber = rollnumber + 1  
+    
+    all_numbers = [one, two, three, four, five, six, rollnumber, errorcnt]
+    return all_numbers
+    
+def logging(number):
+    
+    print('logging')
     
     file = open('log', 'w')
-    file.write('Einz:' + str(one) + '\n')
-    file.write('Zwei:' + str(two) + '\n')    
-    file.write("Drei: " + str(three) + '\n')
-    file.write("Vier: " + str(four) + '\n')
-    file.write("Fuenf: " + str(five) + '\n')
-    file.write("Sechs: " + str(six) + '\n')
-    file.write('Gesamt: ' + str(wurfzahl) + '\n')
-    file.write('Fehler: ' + str(errorcnt) + '\n')
-    file.close()
-    
-    
-    wurfzahl = wurfzahl + 1     
-
-#    print("=======================")
- #   print("Einz: ", one)
-  #  print("Zwei: ", two)
-   # print("Drei: ", three)
-    #print("Vier: ", four)
-    #print("Fuenf: ", five)
-    #print("Sechs: ", six)
-    #sprint('Gesamt: ', wurfzahl)
-
-
-    
-    values = [one,two,three,four,five,six]
+    file.write('Einz:' + str(number[0]) + '\n')
+    file.write('Zwei:' + str(number[1]) + '\n')    
+    file.write("Drei: " + str(number[2]) + '\n')
+    file.write("Vier: " + str(number[3]) + '\n')
+    file.write("Fuenf: " + str(number[4]) + '\n')
+    file.write("Sechs: " + str(number[5]) + '\n')
+    file.write('Gesamt: ' + str(number[6]) + '\n')
+    file.write('Fehler: ' + str(number[7]) + '\n')
+    file.close()   
+  
+    values = [number[0],number[1],number[2],number[3],number[4],number[5]]
     
     ax.cla()
     ax.bar([1,2,3,4,5,6], values)
     canvas.draw()
-    print('processing finish')
-    
-def logging(number):
+    print('processing finish')    
     
     
-
-
-
-
 def show_input(grey):
    
     #if bin_true.get() == 1:
@@ -265,7 +249,6 @@ def show_input(grey):
     imgtk1 = ImageTk.PhotoImage(image=img1)
     raw_image.imgtk = imgtk1
     raw_image.configure(image=imgtk1)
-    print('show input')
  
 def show_output(img_with_keypoints):
     
@@ -274,35 +257,33 @@ def show_output(img_with_keypoints):
     imgtk2 = ImageTk.PhotoImage(image=img2)
     output_image.imgtk = imgtk2
     output_image.configure(image=imgtk2)
-    print('show output')
-
-
 
 def mainprogram():
-    if start_stop.get() == 0:
-
-        thread1 = showInputThread(1, "Thread-1", 1)
-        thread1.start()
-        #show_input(get_image())
-        #processed_image,number = img_processing(get_image())
-        #counting(number)
-        
-        #show_output(processed_image)      
-        topFrame.after(500, mainprogram)  
-    else:
-
-        if start_stop.get() == 1 and running == 0:
-            thread1 = myThread(1, "Thread-1", 1)
+    global stepper_running
+    
+    #print('stepper_running: ' + str(stepper_running))
+    #print('readyfi: ' + str(ready_for_img))
+    if start_stop.get() == 1:
+        if stepper_running == 0:
+            thread1 = stepperThread(1, "Thread-1", 1)
             thread1.start()
-        print(start_stop.get())
-        print(ready)
-        if start_stop.get() == 1 and ready ==  1:
-            image = get_image()
-            show_input(image)
-            processed_image =  counting(image)
-            show_output(processed_image)
-        topFrame.after(1000, mainprogram)     
-
+        if ready_for_img == 1:
+            
+            grey = get_image()
+            show_input(grey)
+            keypoint_img = img_processing(grey)
+            number = counting(keypoint_img)
+            logging(number)
+            show_output(keypoint_img)
+            stepper_running = 0
+            print('image finished')
+        
+        
+    elif start_stop.get() == 0 and imgshow_running == 0:
+        thread2 = showInputThread(1, "Thread-1", 1)
+        thread2.start()
+    
+    topFrame.after(1000, mainprogram)  
 
 
 topFrame = Frame(root)
@@ -324,8 +305,8 @@ binary_slider.grid(row=1, column=2)
 
 Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=3)
 
-Button(bottomFrame, text='Step +', command=step_plus).grid(row=2, column=1)
-Button(bottomFrame, text='Step -', command=step_minus).grid(row=2, column=2)
+Button(bottomFrame, text='Step up', command=step_plus).grid(row=2, column=1)
+Button(bottomFrame, text='Step down', command=step_minus).grid(row=2, column=2)
 
 cap = cv2.VideoCapture(0)
 
@@ -343,8 +324,8 @@ detected_number.grid(row=0, column=2)
 
 fig = Figure()   
 ax = fig.add_subplot(111)
-ax.set_xlabel('X AChse')
-ax.set_ylabel('yacvhse')
+ax.set_xlabel('Augenzahlen')
+ax.set_ylabel('Häufigkeit')
 ax.grid
         
 canvas = FigureCanvasTkAgg(fig, topFrame)
