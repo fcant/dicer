@@ -5,10 +5,10 @@ from tkinter import *
 cap = cv2.VideoCapture(0)
 root = Tk()
 
+labelZahl = Label(root, text='50')
+labelZahl.pack()
 
-while(True):
-    # Capture frame-by-frame
-
+def test():
 
     ret, frame = cap.read()
 
@@ -17,10 +17,10 @@ while(True):
 
     cv2.imshow('output',grey)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    root.after(100, test())
 
-    root.mainloop()
+
+root.mainloop()
     
 
 # When everything done, release the capture
