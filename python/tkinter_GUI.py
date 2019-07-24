@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 starting = 0
 
 root = Tk()
-root.title('Dicer')
+root.title('Dicer V0.5')
 
 GPIO.setwarnings(False)
 
@@ -92,8 +92,6 @@ class liveView (threading.Thread):
       
 
 def stepper():
-
-    time.sleep(0.5)
     for i in range(3200):
         if (i > 3000):
             steptime = 0.0006
@@ -103,7 +101,7 @@ def stepper():
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(2)
+    time.sleep(1.5)
 
 
 def slider_plus():
@@ -182,7 +180,7 @@ def img_processing(imageinput):
     #imgtk2 = ImageTk.PhotoImage(image=img2)
     #output_image.imgtk = imgtk2
     #output_image.configure(image=imgtk2)   
-    print('processing finish')   
+    #print('processing finish')   
     
     return closing
 
@@ -207,7 +205,10 @@ def counting(image):
         number = number + 1
     #print(number)
     
-    print('counting')
+    #print('counting')
+    
+    if start_stop.get() == 1:    
+        rollnumber = rollnumber + 1 
     
     if number == 1:
         if start_stop.get() == 1:
@@ -234,11 +235,12 @@ def counting(image):
             six = six + 1
         detected_number.config(text='6')
     elif number > 6 or number < 1:
-        cv2.imwrite(str(errorcnt) + 'error.png', grey)
-        errorcnt = errorcnt + 1
-        print('BILDFEHLER')   
+        if start_stop.get() == 1:  
+            cv2.imwrite(str(errorcnt) + 'error.png', image)
+            errorcnt = errorcnt + 1
+            print('BILDFEHLER')   
       
-    rollnumber = rollnumber + 1  
+ 
     
     all_numbers = [one, two, three, four, five, six, errorcnt,rollnumber]
     return all_numbers
@@ -268,12 +270,14 @@ def logging(numbers):
     canvas1.draw()
  
     ay.cla()
+    ay.set_xticklabels([])
     ay.set_xlabel('Wurfzahl')
     ay.set_ylabel('Fehler')
-    ay.bar([1,2],(numbers[6],numbers[7]))
+    ay.bar(1,numbers[7], label='Wurfzahl')
+    ay.bar(2,numbers[6], label = 'Fehler',color='red')
+    ay.legend(frameon=False)
     
     canvas2.draw()
-    
     
  
     
@@ -321,6 +325,7 @@ def mainprogram():
             if stepper_running == 0 and taking_image == 1:
                 print('start processing')
                 grey = get_image()
+                taking_image = 0
                 show_raw()
                 keypoint_img = img_processing(grey)
                 show_output()
@@ -328,7 +333,7 @@ def mainprogram():
                 logging(number)
    
                 print('image finished')
-                taking_image = 0
+ 
         
         
     elif start_stop.get() == 0 and imgshow_running == 0:
@@ -354,15 +359,14 @@ bottomFrame.pack(side=BOTTOM)
 bin_true=IntVar()
 start_stop=IntVar()
 
-Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=0)
+Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="würfeln", variable=start_stop).grid(row=1, column=5)
 
-Button(bottomFrame, text='-', command=slider_minus).grid(row=1, column=1)
+Button(bottomFrame, text='-', command=slider_minus).grid(row=1, column=0, sticky=E)
 
-binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL)
-binary_slider.grid(row=1, column=2)
+binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL).grid(row=1, column=1)
 
-Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=3)
+Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=2, sticky=W)
 
 Button(bottomFrame, text='Step up', command=step_plus).grid(row=2, column=1)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=2, column=2)
@@ -394,6 +398,7 @@ canvas1.draw()
 
 fig2 = Figure()
 ay = fig2.add_subplot(111)
+ay.set_xticklabels([])
 ay.set_xlabel('Wurfzahl')
 ay.set_ylabel('Fehler')
 
