@@ -270,12 +270,12 @@ def logging(numbers):
     canvas1.draw()
  
     ay.cla()
-    ay.set_xticklabels([])
-    ay.set_xlabel('Wurfzahl')
-    ay.set_ylabel('Fehler')
-    ay.bar(1,numbers[7], label='Wurfzahl')
-    ay.bar(2,numbers[6], label = 'Fehler',color='red')
-    ay.legend(frameon=False)
+    ay.barh([0], numbers[4])
+    ay.barh([1], numbers[5])
+    ay.set_yticks((0, 1))
+    ay.set_yticklabels(('Würfe', 'Fehler'))
+    ay.set_xlabel('Anzahl')
+    ay.invert_yaxis()
     
     canvas2.draw()
     
@@ -392,15 +392,18 @@ ax.set_ylabel('Häufigkeit')
 
 
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
-canvas1.get_tk_widget().grid(row=0, column=4)
+canvas1.get_tk_widget().grid(row=1, column=3)
 canvas1.draw()
 
 
 fig2 = Figure()
+fig2.subplots_adjust(bottom=0.3)
+fig2.set_size_inches(5, 1.5)
 ay = fig2.add_subplot(111)
-ay.set_xticklabels([])
-ay.set_xlabel('Wurfzahl')
-ay.set_ylabel('Fehler')
+ay.set_yticks((0,1))
+ay.set_yticklabels(('Würfe', 'Fehler'))
+ay.set_xlabel('Anzahl')
+ay.invert_yaxis()
 
 canvas2 = FigureCanvasTkAgg(fig2, topFrame)
 canvas2.get_tk_widget().grid(row=0, column=5)
