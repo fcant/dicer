@@ -2,7 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ee7b99a-6d81-455d-b3d2-cc18029e9566" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/python/testing/tkinter_show_webcam_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dicer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dicer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
+=======
+      <change beforePath="$PROJECT_DIR$/python/testing/show_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/show_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/testing/show_webcam.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/testing/show_webcam.py" afterDir="false" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,11 +20,40 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+<<<<<<< HEAD
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/python/tkinter_GUI.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="4372">
               <caret line="299" lean-forward="true" selection-start-line="299" selection-end-line="299" />
+=======
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="374">
+              <caret line="22" column="19" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/python/testing/tkinter_show_webcam_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="12" column="27" lean-forward="true" selection-start-line="12" selection-start-column="27" selection-end-line="12" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="272">
+              <caret line="28" selection-start-line="28" selection-end-line="29" selection-end-column="16" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -59,11 +96,16 @@
         <option value="$PROJECT_DIR$/python/testing/tkinter_test.py" />
         <option value="$PROJECT_DIR$/python/testing/canny_edge.py" />
         <option value="$PROJECT_DIR$/python/testing/tkinter_test2.py" />
-        <option value="$PROJECT_DIR$/python/testing/show_webcam.py" />
         <option value="$PROJECT_DIR$/python/testing/get_webcam_image.py" />
         <option value="$PROJECT_DIR$/python/testing/stapper_position.py" />
         <option value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/python/tkinter_GUI.py" />
+=======
+        <option value="$PROJECT_DIR$/python/testing/show_image.py" />
+        <option value="$PROJECT_DIR$/python/testing/show_webcam.py" />
+        <option value="$PROJECT_DIR$/python/testing/tkinter_show_webcam_test.py" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
       </list>
     </option>
   </component>
@@ -128,8 +170,13 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="RunManager" selected="Python.tkinter_GUI">
     <configuration name="get_webcam_image" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+  <component name="RunManager" selected="Python.tkinter_show_webcam_test">
+    <configuration name="main_trackbars" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -141,7 +188,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/get_webcam_image.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -150,7 +197,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main_trackbars" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="show_image" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -162,7 +209,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/main_trackbars.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/show_image.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -192,7 +239,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="stapper_position" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="tkinter_show_webcam_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -204,7 +251,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/stapper_position.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/tkinter_show_webcam_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -213,7 +260,11 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="tkinter_GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
+=======
+    <configuration name="tkinter_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
       <module name="dicer" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -225,7 +276,11 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+<<<<<<< HEAD
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/tkinter_GUI.py" />
+=======
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/python/testing/tkinter_test.py" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -236,11 +291,19 @@
     </configuration>
     <recent_temporary>
       <list>
+<<<<<<< HEAD
         <item itemvalue="Python.tkinter_GUI" />
         <item itemvalue="Python.main_trackbars" />
         <item itemvalue="Python.stapper_position" />
         <item itemvalue="Python.get_webcam_image" />
         <item itemvalue="Python.show_webcam" />
+=======
+        <item itemvalue="Python.tkinter_show_webcam_test" />
+        <item itemvalue="Python.tkinter_test" />
+        <item itemvalue="Python.show_webcam" />
+        <item itemvalue="Python.show_image" />
+        <item itemvalue="Python.main_trackbars" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
       </list>
     </recent_temporary>
   </component>
@@ -348,6 +411,7 @@
     <entry file="file://$PROJECT_DIR$/python/testing/dark_dice.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
@@ -376,13 +440,34 @@
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
+=======
+    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/moment_test.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/stapper_position.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/main.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="552">
           <caret line="70" selection-start-line="70" selection-end-line="71" selection-end-column="31" />
+=======
+        <state relative-caret-position="408">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
           <folding>
             <element signature="e#0#10#0" expanded="true" />
             <element signature="e#71#686#0" />
@@ -400,23 +485,54 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test.py">
+    <entry file="file://$PROJECT_DIR$/python/testing/main_trackbars.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="552">
           <caret line="62" column="30" selection-start-line="62" selection-start-column="30" selection-end-line="62" selection-end-column="30" />
+=======
+        <state relative-caret-position="102">
+          <caret line="42" selection-start-line="42" selection-end-line="42" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/python/testing/show_image.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="32" selection-start-line="2" selection-start-column="32" selection-end-line="2" selection-end-column="32" />
+        <state relative-caret-position="170">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/class_test_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="14" lean-forward="true" selection-start-line="4" selection-start-column="14" selection-end-line="4" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-222">
+          <caret line="47" column="21" selection-start-line="47" selection-start-column="21" selection-end-line="47" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#71#686#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/get_webcam_image.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/python/testing/class_test_main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -435,9 +551,42 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4372">
           <caret line="299" lean-forward="true" selection-start-line="299" selection-end-line="299" />
+=======
+    <entry file="file://$PROJECT_DIR$/python/tkinter_GUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4505">
+          <caret line="20" column="17" lean-forward="true" selection-start-line="20" selection-start-column="17" selection-end-line="20" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/show_webcam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="19" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
+>>>>>>> af828ded1cbbb77a524ae1b8712ed153e67a90e3
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="28" selection-start-line="28" selection-end-line="29" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/python/testing/tkinter_show_webcam_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="12" column="27" lean-forward="true" selection-start-line="12" selection-start-column="27" selection-end-line="12" selection-end-column="27" />
         </state>
       </provider>
     </entry>
