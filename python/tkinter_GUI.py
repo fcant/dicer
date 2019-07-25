@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 starting = 0
 
 root = Tk()
-root.title('Dicer V0.5')
+root.title('Dicer V0.5a')
 
 GPIO.setwarnings(False)
 
@@ -65,8 +65,6 @@ class stepperThread (threading.Thread):
         global taking_image
         #print ("============Starting " + self.name)
         stepper()
-
-
         taking_image = 1
         stepper_running = 0
       
@@ -101,9 +99,27 @@ def stepper():
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(1.5)
+    time.sleep(1)
 
-
+def reset():
+    global rollnumber
+    global one
+    global two
+    global three
+    global four
+    global five
+    global six
+    global errorcnt
+    
+    rollnumber=0
+    one=0
+    two=0
+    three=0
+    four=0
+    five=0
+    six=0
+    errorcnt=0
+    
 def slider_plus():
     stand = binary_slider.get()
     stand = stand + 1
@@ -142,16 +158,13 @@ def get_image():
 
     frame1 = frame[y:y + h, x:x + w]  
     grey = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-    
-
     cv2.imwrite('last_raw.png', grey)    
-    
     return grey
 
 
 def img_processing(imageinput):
     
-    ret, binary_image = cv2.threshold(imageinput, 230, 255, cv2.THRESH_BINARY)
+    ret, binary_image = cv2.threshold(imageinput, binary_slider.get(), 255, cv2.THRESH_BINARY)
 
     kernel = np.ones((6, 6), np.uint8)
 
@@ -168,12 +181,7 @@ def img_processing(imageinput):
 
     mask = np.zeros((h + 2, w + 2), np.uint8)
     cv2.floodFill(closing, mask, (0, 0), 255);
-    cv2.floodFill(closing, mask, (0, 200), 255);
-    
-    
-    
-    
- 
+    cv2.floodFill(closing, mask, (0, 200), 255)
     
     #cv2image2 = cv2.cvtColor(closing, cv2.COLOR_BGR2RGBA)
     #img2 = Image.fromarray(cv2image2)
@@ -185,7 +193,6 @@ def img_processing(imageinput):
     return closing
 
 def counting(image):
-    
     global rollnumber
     global one
     global two
@@ -194,7 +201,6 @@ def counting(image):
     global five
     global six
     global errorcnt
-    
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
     img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -205,52 +211,34 @@ def counting(image):
     
     for i in keypoints[0:]:
         number = number + 1
-    #print(number)
-    
-    #print('counting')
-    
     if start_stop.get() == 1:    
-        rollnumber = rollnumber + 1 
-    
-    if number == 1:
-        if start_stop.get() == 1:
-            one = one +1
-        detected_number.config(text='1')
-    elif number == 2:
-        if start_stop.get() == 1:
-            two = two +1
-        detected_number.config(text='2')
-    elif number == 3:
-        if start_stop.get() == 1:
-            three = three +1
-        detected_number.config(text='3')
-    elif number == 4:
-        if start_stop.get() == 1:        
-            four = four +1
-        detected_number.config(text='4')
-    elif number == 5:
-        if start_stop.get() == 1:        
-            five = five +1
-        detected_number.config(text='5')
-    elif number == 6:
-        if start_stop.get() == 1:        
-            six = six + 1
-        detected_number.config(text='6')
-    elif number > 6 or number < 1:
+        rollnumber = rollnumber + 1
+
+    detected_number.config(text=str(number))
+
+    if start_stop.get() == 1 and taking_image == 1 and number == 1:
+        one = one +1
+    elif start_stop.get() == 1 and taking_image == 1 and number ==2:
+        two = two +1
+    elif start_stop.get() == 1 and taking_image == 1 and number ==3:
+        three = three +1
+    elif start_stop.get() == 1 and taking_image == 1 and number == 4:        
+        four = four +1
+    elif start_stop.get() == 1 and taking_image == 1 and number ==5:        
+        five = five +1
+    elif start_stop.get() == 1 and taking_image == 1 and number == 6:        
+        six = six + 1
+    elif (number > 6 or number < 1) and taking_image == 1:
         if start_stop.get() == 1:  
-            cv2.imwrite(str(errorcnt) + 'error.png', image)
+            cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
+            raw = cv2.imread('last_raw.png')           
+            cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
             errorcnt = errorcnt + 1
-            print('BILDFEHLER')   
-      
- 
-    
+         
     all_numbers = [one, two, three, four, five, six, errorcnt,rollnumber]
     return all_numbers
     
 def logging(numbers):
-    
-    print('logging')
-    
     file = open('log', 'w')
     file.write('Einz:' + str(numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + '\n')    
@@ -262,6 +250,10 @@ def logging(numbers):
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.close()   
   
+  
+    all_rolls.config(text=str(numbers[7]))
+    errors.config(text=str(numbers[6]))
+ 
     values = [numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]]
     
     ax.cla()
@@ -270,28 +262,19 @@ def logging(numbers):
     ax.bar([1,2,3,4,5,6], values)
  
     canvas1.draw()
- 
-    ay.cla()
-    ay.barh([0], numbers[7])
-    ay.barh([1], numbers[6])
-    ay.set_yticks((0, 1))
-    ay.set_yticklabels(('Würfe', 'Fehler'))
-    ay.set_xlabel('Anzahl')
-    #ay.invert_yaxis()
-    
-    canvas2.draw()
-    
- 
-    
-    
+
 def show_raw():
-   
-    #if bin_true.get() == 1:
-    #    ret, grey = cv2.threshold(grey, int(binary_slider.get()) , 255, cv2.THRESH_BINARY)
-        
-    img2 = ImageTk.PhotoImage(Image.open('last_raw.png'))
-    raw_image.configure(image=img2)
-    raw_image.image = img2   
+    if bin_true.get() == 1:
+        raw = cv2.imread('last_raw.png')
+        ret, binary_image = cv2.threshold(raw, int(binary_slider.get()) , 255, cv2.THRESH_BINARY)
+        cv2.imwrite('last_bin.png', binary_image)
+        img2 = ImageTk.PhotoImage(Image.open('last_bin.png'))   
+        raw_image.configure(image=img2)
+        raw_image.image = img2 
+    else:
+        img2 = ImageTk.PhotoImage(Image.open('last_raw.png'))   
+        raw_image.configure(image=img2)
+        raw_image.image = img2   
         
     #cv2image1 = cv2.cvtColor(grey, cv2.COLOR_BGR2RGBA)
     #img1 = Image.fromarray(cv2image1)
@@ -311,51 +294,46 @@ def show_output():
     #output_image.imgtk = imgtk2
     #output_image.configure(image=imgtk2)
     
-starting = 0
 def mainprogram():
     global stepper_running
     global taking_image
+    
+    file = open('config', 'w')
+    file.write(str(binary_slider.get()))
+    file.close() 
 
     if start_stop.get() == 1 and imgshow_running == 0:
-            if stepper_running == 0 and taking_image == 0:
-                stepper_running = 1
-                thread1 = stepperThread(1, "stepper Thread", 1)
-                thread1.start()
-            if stepper_running == 0 and taking_image == 1:
-                print('start processing')
-                raw_image = get_image()
-                taking_image = 0
-                show_raw()
-                processed_img = img_processing(raw_image)
-                numbers = counting(processed_img)
-                show_output()
-                logging(numbers)
-   
-                print('everything finished')
- 
-        
-        
-    elif start_stop.get() == 0 and imgshow_running == 0: #live View
-        thread2 = liveView(2, "liveView Thread", 2)
-        thread2.start()
+        if stepper_running == 0 and taking_image == 0:
+            stepper_running = 1
+            thread1 = stepperThread(1, "stepper Thread", 1)
+            thread1.start()
+        if stepper_running == 0 and taking_image == 1:
+            raw_image = get_image()
+            show_raw()
+            processed_img = img_processing(raw_image)
+            numbers = counting(processed_img)
+            taking_image = 0
+            show_output()
+            logging(numbers)
+        root.after(100, mainprogram)  
 
         
-
-    
-    
+        
+    elif start_stop.get() == 0:
+        if imgshow_running == 0: #live View
+            thread2 = liveView(2, "liveView Thread", 2)
+            thread2.start()
+        root.after(1000, mainprogram)
+        
     root.update()
-    root.after(1000, mainprogram)
-    
 
-
+cap = cv2.VideoCapture(0)
 
 topFrame = Frame(root)
 topFrame.pack(side=TOP)
 
-
-
 bottomFrame = Frame(root)
-bottomFrame.pack(side=BOTTOM)
+bottomFrame.pack(side=LEFT)
 
 bin_true=IntVar()
 start_stop=IntVar()
@@ -363,16 +341,21 @@ start_stop=IntVar()
 Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="würfeln", variable=start_stop).grid(row=1, column=5)
 
-#Button(bottomFrame, text='-', command=slider_minus).grid(row=1, column=0, sticky=E)
+Button(bottomFrame, text='-', command=slider_minus).grid(row=3, column=0, sticky=E)
 
-#binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL).grid(row=1, column=1)
+binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL)
+binary_slider.grid(row=3, column=1)
 
-#Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=2, sticky=W)
+file = open('config', 'r')
+old_bin = file.read()
+binary_slider.set(int(old_bin))
+file.close()
 
-Button(bottomFrame, text='Step up', command=step_plus).grid(row=2, column=1)
-Button(bottomFrame, text='Step down', command=step_minus).grid(row=2, column=2)
+Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=2, sticky=W)
 
-cap = cv2.VideoCapture(0)
+Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
+Button(bottomFrame, text='Step down', command=step_minus).grid(row=1, column=11)
+Button(bottomFrame, text='Reset', command=reset).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
 
 dummy_image = PhotoImage(file='dummy_image.png')
 
@@ -381,6 +364,14 @@ raw_image.grid(row=0, column=0)
 
 output_image = Label(topFrame, image=dummy_image)
 output_image.grid(row=0, column=1)
+
+tag_all_rolls = Label(bottomFrame, text='Gesamtwürfe: ').grid(row=0, column=1, sticky=W)
+all_rolls = Label(bottomFrame, text='0')
+all_rolls.grid(row=0, column=2, sticky=W)
+
+tag_errors = Label(bottomFrame, text='Fehler: ').grid(row=1, column=1, sticky=W)
+errors = Label(bottomFrame, text='0')
+errors.grid(row=1, column=2, sticky=W)
 
 detected_number = Label(topFrame, text='0', padx=50, pady=50)
 detected_number.config(font=("Courier", 44))
@@ -391,40 +382,9 @@ ax = fig1.add_subplot(111)
 ax.set_xlabel('Augenzahlen')
 ax.set_ylabel('Häufigkeit')
 
-
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
 canvas1.get_tk_widget().grid(row=0, column=4)
 canvas1.draw()
 
-
-fig2 = Figure()
-fig2.subplots_adjust(bottom=0.3)
-fig2.set_size_inches(5, 1.5)
-ay = fig2.add_subplot(111)
-ay.set_yticks((0,1))
-ay.set_yticklabels(('Würfe', 'Fehler'))
-ay.set_xlabel('Anzahl')
-ay.invert_yaxis()
-
-canvas2 = FigureCanvasTkAgg(fig2, bottomFrame)
-canvas2.get_tk_widget().grid(row=1, column=10)
-canvas2.draw()
-
-
-#image = get_image()
-#show_input(image)
-#processed_image =  counting(image)
-#show_output(processed_image)
-
-
-
-
 mainprogram()
 root.mainloop()
-
-
-#img = ImageTk.PhotoImage()
-#panel = Label(root, image = img)
-#panel.pack()
-
-#
