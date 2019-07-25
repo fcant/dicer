@@ -170,7 +170,7 @@ def img_processing(imageinput):
     cv2.floodFill(closing, mask, (0, 0), 255);
     cv2.floodFill(closing, mask, (0, 200), 255);
     
-    cv2.imwrite('last_output.png', closing)
+    
     
     
  
@@ -198,6 +198,8 @@ def counting(image):
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
     img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    cv2.imwrite('last_output.png', img_with_keypoints)
     
     number = 0
     
@@ -270,12 +272,12 @@ def logging(numbers):
     canvas1.draw()
  
     ay.cla()
-    ay.barh([0], numbers[4])
-    ay.barh([1], numbers[5])
+    ay.barh([0], numbers[7])
+    ay.barh([1], numbers[6])
     ay.set_yticks((0, 1))
     ay.set_yticklabels(('Würfe', 'Fehler'))
     ay.set_xlabel('Anzahl')
-    ay.invert_yaxis()
+    #ay.invert_yaxis()
     
     canvas2.draw()
     
@@ -313,10 +315,7 @@ starting = 0
 def mainprogram():
     global stepper_running
     global taking_image
-    #global stepper_running
-    #global imshow_running
-    #print('stepper_running: ' + str(stepper_running))
-    #print('readyfi: ' + str(ready_for_img))
+
     if start_stop.get() == 1 and imgshow_running == 0:
             if stepper_running == 0 and taking_image == 0:
                 stepper_running = 1
@@ -324,19 +323,19 @@ def mainprogram():
                 thread1.start()
             if stepper_running == 0 and taking_image == 1:
                 print('start processing')
-                grey = get_image()
+                raw_image = get_image()
                 taking_image = 0
                 show_raw()
-                keypoint_img = img_processing(grey)
+                processed_img = img_processing(raw_image)
+                numbers = counting(processed_img)
                 show_output()
-                number = counting(keypoint_img)
-                logging(number)
+                logging(numbers)
    
-                print('image finished')
+                print('everything finished')
  
         
         
-    elif start_stop.get() == 0 and imgshow_running == 0:
+    elif start_stop.get() == 0 and imgshow_running == 0: #live View
         thread2 = liveView(2, "liveView Thread", 2)
         thread2.start()
 
@@ -353,6 +352,8 @@ def mainprogram():
 topFrame = Frame(root)
 topFrame.pack(side=TOP)
 
+
+
 bottomFrame = Frame(root)
 bottomFrame.pack(side=BOTTOM)
 
@@ -362,11 +363,11 @@ start_stop=IntVar()
 Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="würfeln", variable=start_stop).grid(row=1, column=5)
 
-Button(bottomFrame, text='-', command=slider_minus).grid(row=1, column=0, sticky=E)
+#Button(bottomFrame, text='-', command=slider_minus).grid(row=1, column=0, sticky=E)
 
-binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL).grid(row=1, column=1)
+#binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL).grid(row=1, column=1)
 
-Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=2, sticky=W)
+#Button(bottomFrame, text='+', command=slider_plus).grid(row=1, column=2, sticky=W)
 
 Button(bottomFrame, text='Step up', command=step_plus).grid(row=2, column=1)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=2, column=2)
@@ -392,7 +393,7 @@ ax.set_ylabel('Häufigkeit')
 
 
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
-canvas1.get_tk_widget().grid(row=1, column=3)
+canvas1.get_tk_widget().grid(row=0, column=4)
 canvas1.draw()
 
 
@@ -405,8 +406,8 @@ ay.set_yticklabels(('Würfe', 'Fehler'))
 ay.set_xlabel('Anzahl')
 ay.invert_yaxis()
 
-canvas2 = FigureCanvasTkAgg(fig2, topFrame)
-canvas2.get_tk_widget().grid(row=0, column=5)
+canvas2 = FigureCanvasTkAgg(fig2, bottomFrame)
+canvas2.get_tk_widget().grid(row=1, column=10)
 canvas2.draw()
 
 
