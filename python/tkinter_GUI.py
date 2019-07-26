@@ -1,4 +1,5 @@
 import threading
+import datetime
 import numpy as np
 import cv2
 from tkinter import *
@@ -90,9 +91,9 @@ class liveView (threading.Thread):
       
 
 def stepper():
-    for i in range(3200):
-        if (i > 3000):
-            steptime = 0.0006
+    for i in range(3200):        
+        if (i > 2931):
+            steptime = np.sin((i-2900)*0.00001)
         else:
             steptime = 0.0003
         GPIO.output(4, GPIO.HIGH)
@@ -228,7 +229,7 @@ def counting(image):
         five = five +1
     elif start_stop.get() == 1 and taking_image == 1 and number == 6:        
         six = six + 1
-    elif (number > 6 or number < 1) and taking_image == 1:
+    elif (number > 6 or number < 1) and taking_image == 1 and error_logging == 1:
         if start_stop.get() == 1:  
             cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
             raw = cv2.imread('last_raw.png')           
@@ -293,7 +294,12 @@ def show_output():
     #imgtk2 = ImageTk.PhotoImage(image=img2)
     #output_image.imgtk = imgtk2
     #output_image.configure(image=imgtk2)
-    
+
+def save_image():
+    raw = cv2.imread('last_raw.png')
+    ts = datetime.datetime.now().timestamp()
+    cv2.imwrite(str(ts) + '.png', raw) 
+
 def mainprogram():
     global stepper_running
     global taking_image
@@ -335,11 +341,15 @@ topFrame.pack(side=TOP)
 bottomFrame = Frame(root)
 bottomFrame.pack(side=LEFT)
 
+error_logging = IntVar()
 bin_true=IntVar()
 start_stop=IntVar()
 
+
 Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="würfeln", variable=start_stop).grid(row=1, column=5)
+Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=1, column=6)
+
 
 Button(bottomFrame, text='-', command=slider_minus).grid(row=3, column=0, sticky=E)
 
@@ -353,29 +363,31 @@ file.close()
 
 Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=2, sticky=W)
 
+Button(bottomFrame, text='Save Image', command=save_image).grid(row=1, column=8, sticky=E)
 Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=1, column=11)
 Button(bottomFrame, text='Reset', command=reset).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
 
 dummy_image = PhotoImage(file='dummy_image.png')
 
+Label(bottomFrame, text='Motor Control: ').grid(row=1, column=9, sticky=E, padx=20)
 raw_image = Label(topFrame, image=dummy_image)
 raw_image.grid(row=0, column=0)
 
 output_image = Label(topFrame, image=dummy_image)
-output_image.grid(row=0, column=1)
+output_image.grid(row=1, column=0)
 
-tag_all_rolls = Label(bottomFrame, text='Gesamtwürfe: ').grid(row=0, column=1, sticky=W)
+Label(bottomFrame, text='Gesamtwürfe: ').grid(row=0, column=1, sticky=W)
 all_rolls = Label(bottomFrame, text='0')
 all_rolls.grid(row=0, column=2, sticky=W)
 
-tag_errors = Label(bottomFrame, text='Fehler: ').grid(row=1, column=1, sticky=W)
+Label(bottomFrame, text='Fehler: ').grid(row=1, column=1, sticky=W)
 errors = Label(bottomFrame, text='0')
 errors.grid(row=1, column=2, sticky=W)
 
 detected_number = Label(topFrame, text='0', padx=50, pady=50)
 detected_number.config(font=("Courier", 44))
-detected_number.grid(row=0, column=2)
+detected_number.grid(row=0, column=2, rowspan=2)
 
 fig1 = Figure()   
 ax = fig1.add_subplot(111)
@@ -383,7 +395,7 @@ ax.set_xlabel('Augenzahlen')
 ax.set_ylabel('Häufigkeit')
 
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
-canvas1.get_tk_widget().grid(row=0, column=4)
+canvas1.get_tk_widget().grid(row=0, column=4, rowspan=2)
 canvas1.draw()
 
 mainprogram()
