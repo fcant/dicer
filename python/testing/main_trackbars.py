@@ -42,7 +42,7 @@ def exposure(input_value):
     exposure_value = input_value
 
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 #startwerte
 binary_value = 100
@@ -112,6 +112,9 @@ while(True):
 
     #binary_image_neg = cv2.bitwise_not(binary_image)
     #binary_image_neg = cv2.medianBlur(binary_image_neg, 5)
+
+    
+
 
     kernel = np.ones((5, 5), np.uint8)
 

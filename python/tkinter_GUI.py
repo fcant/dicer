@@ -167,7 +167,9 @@ def img_processing(imageinput):
     
     ret, binary_image = cv2.threshold(imageinput, binary_slider.get(), 255, cv2.THRESH_BINARY)
 
-    kernel = np.ones((6, 6), np.uint8)
+    #kernel = np.ones((5, 5), np.uint8)
+
+    kernel = np.array([[0, 0, 1, 0, 0],[0,1,1,1,0],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]], dtype=np.uint8)
 
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
     erosion = cv2.erode(opening, kernel, iterations = 1)
@@ -181,6 +183,7 @@ def img_processing(imageinput):
     h = closing.shape[0]  # x
 
     mask = np.zeros((h + 2, w + 2), np.uint8)
+    
     cv2.floodFill(closing, mask, (0, 0), 255);
     cv2.floodFill(closing, mask, (0, 200), 255)
     
@@ -347,7 +350,7 @@ start_stop=IntVar()
 
 
 Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
-Checkbutton(bottomFrame, text="würfeln", variable=start_stop).grid(row=1, column=5)
+Checkbutton(bottomFrame, text="roll", variable=start_stop).grid(row=1, column=5)
 Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=1, column=6)
 
 
@@ -377,11 +380,11 @@ raw_image.grid(row=0, column=0)
 output_image = Label(topFrame, image=dummy_image)
 output_image.grid(row=1, column=0)
 
-Label(bottomFrame, text='Gesamtwürfe: ').grid(row=0, column=1, sticky=W)
+Label(bottomFrame, text='All rolls: ').grid(row=0, column=1, sticky=W)
 all_rolls = Label(bottomFrame, text='0')
 all_rolls.grid(row=0, column=2, sticky=W)
 
-Label(bottomFrame, text='Fehler: ').grid(row=1, column=1, sticky=W)
+Label(bottomFrame, text='Errors: ').grid(row=1, column=1, sticky=W)
 errors = Label(bottomFrame, text='0')
 errors.grid(row=1, column=2, sticky=W)
 
@@ -391,7 +394,7 @@ detected_number.grid(row=0, column=2, rowspan=2)
 
 fig1 = Figure()   
 ax = fig1.add_subplot(111)
-ax.set_xlabel('Augenzahlen')
+ax.set_xlabel('Numbers')
 ax.set_ylabel('Häufigkeit')
 
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
