@@ -30,6 +30,19 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
+one_min = 0
+one_max = 0
+two_min = 0
+two_max = 0
+three_min = 0
+three_max = 0
+four_min = 0
+four_max = 0
+five_min = 0
+five_max = 0
+six_min = 0
+six_max = 0
+
 rollnumber=0
 one=0
 two=0
@@ -38,8 +51,28 @@ four=0
 five=0
 six=0
 
+
 ready  = 0
 errorcnt = 0
+
+file = open('config', 'r')
+config_values = file.readlines()
+file.close()
+
+
+one_min = int(config_values[3])
+one_max = int(config_values[4])
+two_min = int(config_values[6])
+two_max = int(config_values[7])
+three_min = int(config_values[9])
+three_max = int(config_values[10])
+four_min = int(config_values[12])
+four_max = int(config_values[13])
+five_min = int(config_values[15])
+five_max = int(config_values[16])
+six_min = int(config_values[18])
+six_max = int(config_values[19])
+
 
 steptime = 0.0003
 
@@ -154,8 +187,8 @@ def get_image():
     y=200
     h=230
     
-    x=280
-    w=220
+    x=270
+    w=230
 
     frame1 = frame[y:y + h, x:x + w]  
     grey = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
@@ -165,13 +198,12 @@ def get_image():
 
 def img_processing(image_input):
     
-    print(dark_numbers.get())
     
     #input_frame = cv2.cvtColor(image_input, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
     ret, binary_image = cv2.threshold(image_input, binary_slider.get(), 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
     
-    kernel_rect = np.ones((5, 5), np.uint8) #quadratische Maske erzeugen
+    kernel_rect = np.ones((7, 7), np.uint8) #quadratische Maske erzeugen
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
     
     if dark_numbers.get() == 1:
@@ -182,7 +214,7 @@ def img_processing(image_input):
         mask = np.zeros((h + 2, w + 2), np.uint8)
     
         cv2.floodFill(opening, mask, (0, 0), 255);
-        cv2.floodFill(opening, mask, (0, 200), 255)
+        cv2.floodFill(opening, mask, (0, 229), 255)
         
     else:   
         opening = cv2.bitwise_not(opening)
@@ -225,6 +257,23 @@ def counting(image):
     global five
     global six
     global errorcnt
+    
+    global conif_values
+    
+    one_min = int(config_values[3])
+    one_max = int(config_values[4])
+    two_min = int(config_values[6])
+    two_max = int(config_values[7])
+    three_min = int(config_values[9])
+    three_max = int(config_values[10])
+    four_min = int(config_values[12])
+    four_max = int(config_values[13])
+    five_min = int(config_values[15])
+    five_max = int(config_values[16])
+    six_min = int(config_values[18])
+    six_max = int(config_values[19])
+    
+    
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
     img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -236,31 +285,88 @@ def counting(image):
     for i in keypoints[0:]:
         number = number + 1
     if start_stop.get() == 1:    
-        rollnumber = rollnumber + 1
-
+        rollnumber += 1    
+    
     detected_number.config(text=str(number))
 
-    if start_stop.get() == 1 and taking_image == 1 and number == 1:
-        one = one +1
-    elif start_stop.get() == 1 and taking_image == 1 and number ==2:
-        two = two +1
-    elif start_stop.get() == 1 and taking_image == 1 and number ==3:
-        three = three +1
-    elif start_stop.get() == 1 and taking_image == 1 and number == 4:        
-        four = four +1
-    elif start_stop.get() == 1 and taking_image == 1 and number ==5:        
-        five = five +1
-    elif start_stop.get() == 1 and taking_image == 1 and number == 6:        
-        six = six + 1
-    elif (number > 6 or number < 1) and taking_image == 1:
-        if start_stop.get() == 1:
-            errorcnt = errorcnt + 1
-            if error_logging == 1:
-                cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
-                raw = cv2.imread('last_raw.png')           
-                cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
+    if stepper_running == 0:
+        b_pixels = 0
+        for x in range(0,229):
+            for y in range(0,229):
+                if image[x,y] == 0:
+                    b_pixels += 1   
+    
+    if calibrating.get() == 1:
+        if number == 1 and b_pixels < one_min:
+            one_min = b_pixels
+        elif number == 1 and b_pixels > one_max:
+            one_max = b_pixels
+
+        elif number == 2 and b_pixels < two_min:
+            two_min = b_pixels
+        elif number == 2 and b_pixels > two_max:
+            two_max = b_pixels
+
+        elif number == 3 and b_pixels < three_min:
+            three_min = b_pixels
+        elif number == 3 and b_pixels > three_max:
+            three_max = b_pixels
             
-         
+        elif number == 4 and b_pixels < four_min:
+            four_min = b_pixels
+        elif number == 4 and b_pixels > four_max:
+            four_max = b_pixels
+
+        elif number == 5 and b_pixels < five_min:
+            five_min = b_pixels
+        elif number == 5 and b_pixels > five_max:
+            five_max = b_pixels
+                 
+        elif number == 6 and b_pixels < six_min:
+            six_min = b_pixels
+        elif number == 6 and b_pixels > six_max:
+            six_max = b_pixels
+            
+        config_values[3] = str(one_min)+'\n'
+        config_values[4]= str(one_max)+'\n'
+        config_values[6]= str(two_min)+'\n'
+        config_values[7]= str(two_max)+'\n'
+        config_values[9]= str(three_min)+'\n'
+        config_values[10] = str(three_max)+'\n'
+        config_values[12] = str(four_min )+'\n'
+        config_values[13] = str(four_max)+'\n'
+        config_values[15] = str(five_min )+'\n'
+        config_values[16] = str(five_max )+'\n'
+        config_values[18] = str(six_min )+'\n'
+        config_values[19] = str(six_max)+'\n'
+
+        file = open('config', 'w')
+        file.writelines(config_values)
+        file.close() 
+    else:
+        if start_stop.get() == 1 and taking_image == 1 and number == 1 and (b_pixels > one_min and b_pixels < one_max):
+            one += 1
+        elif start_stop.get() == 1 and taking_image == 1 and number ==2 and (b_pixels > two_min and b_pixels < two_max):
+            two += 1
+        elif start_stop.get() == 1 and taking_image == 1 and number ==3 and (b_pixels > three_min and b_pixels < three_max):
+            three += 1
+        elif start_stop.get() == 1 and taking_image == 1 and number == 4 and (b_pixels > four_min and b_pixels < four_max):        
+            four += 1
+        elif start_stop.get() == 1 and taking_image == 1 and number ==5 and (b_pixels > five_min and b_pixels < five_max):        
+            five += 1
+        elif start_stop.get() == 1 and taking_image == 1 and number == 6 and (b_pixels > six_min and b_pixels < six_max):        
+            six += 1
+        elif (number > 6 or number < 1) and taking_image == 1:
+            if start_stop.get() == 1:
+                errorcnt = errorcnt + 1
+                if error_logging == 1:
+                    cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
+                    raw = cv2.imread('last_raw.png')           
+                    cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
+      
+
+
+ 
     all_numbers = [one, two, three, four, five, six, errorcnt,rollnumber]
     return all_numbers
     
@@ -329,8 +435,13 @@ def mainprogram():
     global stepper_running
     global taking_image
     
+    config_values[1] = str(binary_slider.get())+'\n'  
+    
+    
+    
+    
     file = open('config', 'w')
-    file.write(str(binary_slider.get()))
+    file.writelines(config_values)
     file.close() 
 
     if start_stop.get() == 1 and imgshow_running == 0:
@@ -358,6 +469,11 @@ def mainprogram():
         
     root.update()
 
+
+
+
+
+
 cap = cv2.VideoCapture(0)
 
 topFrame = Frame(root)
@@ -366,6 +482,7 @@ topFrame.pack(side=TOP)
 bottomFrame = Frame(root)
 bottomFrame.pack(side=LEFT)
 
+calibrating=IntVar()
 error_logging = IntVar()
 bin_true=IntVar()
 start_stop=IntVar()
@@ -375,6 +492,8 @@ Checkbutton(bottomFrame, text="binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="roll", variable=start_stop).grid(row=1, column=5)
 Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=1, column=6)
 Checkbutton(bottomFrame, text="dark numbers", variable=dark_numbers).grid(row=3, column=4)
+Checkbutton(bottomFrame, text="calibrating", variable=calibrating).grid(row=3, column=5)
+
 
 Label(bottomFrame, text='Binary value: ').grid(row=3, column=0, sticky=E, padx=10)
 
@@ -383,10 +502,7 @@ Button(bottomFrame, text='-', command=slider_minus).grid(row=3, column=1, sticky
 binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL)
 binary_slider.grid(row=3, column=2)
 
-file = open('config', 'r')
-old_bin = file.read()
-binary_slider.set(int(old_bin))
-file.close()
+binary_slider.set(int(config_values[1]))
 
 Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=3, sticky=W)
 
