@@ -13,7 +13,7 @@ from matplotlib.figure import Figure
 starting = 0
 
 root = Tk()
-root.title('Dicer V0.5a')
+root.title('Dicer V0.6')
 
 GPIO.setwarnings(False)
 
@@ -165,15 +165,31 @@ def get_image():
 
 def img_processing(image_input):
     
+    print(dark_numbers.get())
+    
     #input_frame = cv2.cvtColor(image_input, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
     ret, binary_image = cv2.threshold(image_input, binary_slider.get(), 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
     
-    kernel_rect = np.ones((9, 9), np.uint8) #quadratische Maske erzeugen
-    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect) #Opening anwenden, um Rauschen zu entfernen
+    kernel_rect = np.ones((5, 5), np.uint8) #quadratische Maske erzeugen
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
     
+    if dark_numbers.get() == 1:
+       
+        w = opening.shape[1]  # y
+        h = opening.shape[0]  # x
+
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+    
+        cv2.floodFill(opening, mask, (0, 0), 255);
+        cv2.floodFill(opening, mask, (0, 200), 255)
+        
+    else:   
+        opening = cv2.bitwise_not(opening)
+
+
     kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
-    erosion = cv2.erode(opening, kernel_round, iterations = 2) #zweimal Erosion anwenden
+    dilate = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
 
     kernel_round = np.array([[0,0,0,1,1,1,0,0,0],
                              [0,1,1,1,1,1,1,1,0],
@@ -185,17 +201,8 @@ def img_processing(image_input):
                              [0,1,1,1,1,1,1,1,0],
                              [0,0,0,1,1,1,0,0,0]], dtype=np.uint8) #Kreisförmige Maske erzeugen
     
-    dilate = cv2.dilate(erosion, kernel_round, iterations = 2)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
-    
-    dilate = cv2.bitwise_not(dilate)
+    erode= cv2.erode(dilate, kernel_round, iterations = 1)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
 
-    w = dilate.shape[1]  # y
-    h = dilate.shape[0]  # x
-
-    mask = np.zeros((h + 2, w + 2), np.uint8)
-    
-    cv2.floodFill(dilate, mask, (0, 0), 255);
-    cv2.floodFill(dilate, mask, (0, 200), 255)
     
     #cv2image2 = cv2.cvtColor(closing, cv2.COLOR_BGR2RGBA)
     #img2 = Image.fromarray(cv2image2)
@@ -204,9 +211,12 @@ def img_processing(image_input):
     #output_image.configure(image=imgtk2)   
     #print('processing finish')   
     
-    return dilate
+    return erode
 
 def counting(image):
+    
+    
+    
     global rollnumber
     global one
     global two
@@ -359,12 +369,12 @@ bottomFrame.pack(side=LEFT)
 error_logging = IntVar()
 bin_true=IntVar()
 start_stop=IntVar()
-
+dark_numbers=IntVar()
 
 Checkbutton(bottomFrame, text="binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="roll", variable=start_stop).grid(row=1, column=5)
 Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=1, column=6)
-
+Checkbutton(bottomFrame, text="dark numbers", variable=dark_numbers).grid(row=3, column=4)
 
 Label(bottomFrame, text='Binary value: ').grid(row=3, column=0, sticky=E, padx=10)
 

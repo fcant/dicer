@@ -3,6 +3,16 @@ import cv2
 
 cap = cv2.VideoCapture(0)
 
+blob_params = cv2.SimpleBlobDetector_Params()
+
+blob_params.filterByColor = True
+blob_params.filterByArea = True
+blob_params.minArea = 100
+blob_params.filterByCircularity = False
+blob_params.filterByInertia = True
+blob_params.filterByConvexity = True
+
+
 #ret, empty_frame = cap.read() # ret gibt true oder false zurück, checkt ob video läuft
        
 #y=200
@@ -35,10 +45,36 @@ while(True):
     cv2.imshow('INPUT', input_frame) #anzeigen
     cv2.imwrite('INPUT.png', input_frame) #abspeichern
 
-    ret, binary_image = cv2.threshold(input_frame, 180, 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
+    ret, binary_image = cv2.threshold(input_frame, 200, 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
 
     cv2.imshow('INPUT_BINARY', binary_image)
     cv2.imwrite('INPUT_BINARY.png', binary_image)
+
+    kernel_rect = np.ones((5, 5), np.uint8) #quadratische Maske erzeugen
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
+
+    dark_numbers = True
+    
+    if dark_numbers == True:
+                  
+        cv2.imshow('opening', opening) 
+       
+        w = opening.shape[1]  # y
+        h = opening.shape[0]  # x
+
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+    
+        cv2.floodFill(opening, mask, (0, 0), 255);
+        cv2.floodFill(opening, mask, (0, 200), 255)
+        
+        cv2.imshow('flood', opening)        
+    
+        #kernel_rect = np.ones((9, 9), np.uint8) #quadratische Maske erzeugen
+        #closing = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel_rect)   
+    
+    else:   
+        opening = cv2.bitwise_not(opening)
+
 
     #kernel = np.ones((5, 5), np.uint8)
 
@@ -49,14 +85,11 @@ while(True):
 
     #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
 
-    kernel_rect = np.ones((9, 9), np.uint8) #quadratische Maske erzeugen
-    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect) #Opening anwenden, um Rauschen zu entfernen
-    
-    cv2.imshow('opening', opening)
-    cv2.imwrite('opening.png', opening)
-    
+
+    cv2.imshow('bit_not', opening)  
+  
     kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
-    erosion = cv2.erode(opening, kernel_round, iterations = 2) #zweimal Erosion anwenden
+    erosion = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
 
     cv2.imshow('Erosion', erosion)
     cv2.imwrite('Erosion.png', erosion)
@@ -74,7 +107,7 @@ while(True):
                              [0,0,0,1,1,1,0,0,0]], dtype=np.uint8) #Kreisförmige Maske erzeugen
     
     #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
-    dilate = cv2.dilate(erosion, kernel_round, iterations = 2)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
+    dilate = cv2.erode(erosion, kernel_round, iterations = 1)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
     
     cv2.imshow('DILATE', dilate)
     cv2.imwrite('dilate.png', dilate)
@@ -91,6 +124,16 @@ while(True):
     
 #    cv2.floodFill(closing, mask, (0, 0), 255);
 #    cv2.floodFill(closing, mask, (0, 200), 255)
+
+    #dilate = cv2.bitwise_not(dilate)
+
+    detector = cv2.SimpleBlobDetector_create(blob_params)
+    keypoints = detector.detect(dilate)
+    img_with_keypoints = cv2.drawKeypoints(dilate, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    cv2.imshow('keypoints', img_with_keypoints)
+
+
 
     if cv2.waitKey(1) & 0xFF == ord('q'): # Q zum beenden
         break
