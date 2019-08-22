@@ -163,29 +163,39 @@ def get_image():
     return grey
 
 
-def img_processing(imageinput):
+def img_processing(image_input):
     
-    ret, binary_image = cv2.threshold(imageinput, binary_slider.get(), 255, cv2.THRESH_BINARY)
+    #input_frame = cv2.cvtColor(image_input, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
-    #kernel = np.ones((5, 5), np.uint8)
-
-    kernel = np.array([[0, 0, 1, 0, 0],[0,1,1,1,0],[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]], dtype=np.uint8)
-
-    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel)
-    erosion = cv2.erode(opening, kernel, iterations = 1)
+    ret, binary_image = cv2.threshold(image_input, binary_slider.get(), 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
     
-    #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
+    kernel_rect = np.ones((9, 9), np.uint8) #quadratische Maske erzeugen
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect) #Opening anwenden, um Rauschen zu entfernen
+    
+    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
+    erosion = cv2.erode(opening, kernel_round, iterations = 2) #zweimal Erosion anwenden
 
-    closing =  erosion
-    closing = cv2.bitwise_not(closing)
+    kernel_round = np.array([[0,0,0,1,1,1,0,0,0],
+                             [0,1,1,1,1,1,1,1,0],
+                             [0,1,1,1,1,1,1,1,0],
+                             [1,1,1,1,1,1,1,1,1],
+                             [1,1,1,1,1,1,1,1,1],
+                             [1,1,1,1,1,1,1,1,1],
+                             [0,1,1,1,1,1,1,1,0],
+                             [0,1,1,1,1,1,1,1,0],
+                             [0,0,0,1,1,1,0,0,0]], dtype=np.uint8) #Kreisförmige Maske erzeugen
+    
+    dilate = cv2.dilate(erosion, kernel_round, iterations = 2)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
+    
+    dilate = cv2.bitwise_not(dilate)
 
-    w = closing.shape[1]  # y
-    h = closing.shape[0]  # x
+    w = dilate.shape[1]  # y
+    h = dilate.shape[0]  # x
 
     mask = np.zeros((h + 2, w + 2), np.uint8)
     
-    cv2.floodFill(closing, mask, (0, 0), 255);
-    cv2.floodFill(closing, mask, (0, 200), 255)
+    cv2.floodFill(dilate, mask, (0, 0), 255);
+    cv2.floodFill(dilate, mask, (0, 200), 255)
     
     #cv2image2 = cv2.cvtColor(closing, cv2.COLOR_BGR2RGBA)
     #img2 = Image.fromarray(cv2image2)
@@ -194,7 +204,7 @@ def img_processing(imageinput):
     #output_image.configure(image=imgtk2)   
     #print('processing finish')   
     
-    return closing
+    return dilate
 
 def counting(image):
     global rollnumber
@@ -232,12 +242,14 @@ def counting(image):
         five = five +1
     elif start_stop.get() == 1 and taking_image == 1 and number == 6:        
         six = six + 1
-    elif (number > 6 or number < 1) and taking_image == 1 and error_logging == 1:
-        if start_stop.get() == 1:  
-            cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
-            raw = cv2.imread('last_raw.png')           
-            cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
+    elif (number > 6 or number < 1) and taking_image == 1:
+        if start_stop.get() == 1:
             errorcnt = errorcnt + 1
+            if error_logging == 1:
+                cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
+                raw = cv2.imread('last_raw.png')           
+                cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
+            
          
     all_numbers = [one, two, three, four, five, six, errorcnt,rollnumber]
     return all_numbers
@@ -349,22 +361,24 @@ bin_true=IntVar()
 start_stop=IntVar()
 
 
-Checkbutton(bottomFrame, text="Binary", variable=bin_true).grid(row=1, column=4)
+Checkbutton(bottomFrame, text="binary", variable=bin_true).grid(row=1, column=4)
 Checkbutton(bottomFrame, text="roll", variable=start_stop).grid(row=1, column=5)
 Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=1, column=6)
 
 
-Button(bottomFrame, text='-', command=slider_minus).grid(row=3, column=0, sticky=E)
+Label(bottomFrame, text='Binary value: ').grid(row=3, column=0, sticky=E, padx=10)
+
+Button(bottomFrame, text='-', command=slider_minus).grid(row=3, column=1, sticky=E)
 
 binary_slider = Scale(bottomFrame, from_=0, to=255, orient=HORIZONTAL)
-binary_slider.grid(row=3, column=1)
+binary_slider.grid(row=3, column=2)
 
 file = open('config', 'r')
 old_bin = file.read()
 binary_slider.set(int(old_bin))
 file.close()
 
-Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=2, sticky=W)
+Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=3, sticky=W)
 
 Button(bottomFrame, text='Save Image', command=save_image).grid(row=1, column=8, sticky=E)
 Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
@@ -395,7 +409,7 @@ detected_number.grid(row=0, column=2, rowspan=2)
 fig1 = Figure()   
 ax = fig1.add_subplot(111)
 ax.set_xlabel('Numbers')
-ax.set_ylabel('Häufigkeit')
+ax.set_ylabel('Count')
 
 canvas1 = FigureCanvasTkAgg(fig1, topFrame)
 canvas1.get_tk_widget().grid(row=0, column=4, rowspan=2)

@@ -27,18 +27,18 @@ while(True):
     x=280
     w=220
 
-    real_frame = real_frame[y:y + h, x:x + w] 
+    real_frame = real_frame[y:y + h, x:x + w] #zuschneiden
 
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
-    input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen
+    input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
-    cv2.imshow('INPUT', input_frame) #Aufgenommenes Bild anzeigen
-    cv2.imwrite('INPUT', input_frame) #Aufgenommenes Bild anzeigen
+    cv2.imshow('INPUT', input_frame) #anzeigen
+    cv2.imwrite('INPUT.png', input_frame) #abspeichern
 
-    ret, binary_image = cv2.threshold(input_frame, 180, 255, cv2.THRESH_BINARY)
+    ret, binary_image = cv2.threshold(input_frame, 180, 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
 
     cv2.imshow('INPUT_BINARY', binary_image)
-    cv2.imwrite('INPUT_BINARY', binary_image)
+    cv2.imwrite('INPUT_BINARY.png', binary_image)
 
     #kernel = np.ones((5, 5), np.uint8)
 
@@ -47,23 +47,21 @@ while(True):
     #erosion1 = cv2.erode(binary_image, kernel_round, iterations = 1)
     #cv2.imshow('KERNEL_ROUND', erosion1)
 
-    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
+    #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
 
-
-    kernel_rect = np.ones((9, 9), np.uint8)
-    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
+    kernel_rect = np.ones((9, 9), np.uint8) #quadratische Maske erzeugen
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect) #Opening anwenden, um Rauschen zu entfernen
     
     cv2.imshow('opening', opening)
-	cv2.imwrite('opening', opening)	
+    cv2.imwrite('opening.png', opening)
     
-    kernel_rect = np.ones((7, 7), np.uint8)
-    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
-    erosion = cv2.erode(opening, kernel_round, iterations = 2)
+    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
+    erosion = cv2.erode(opening, kernel_round, iterations = 2) #zweimal Erosion anwenden
 
-    cv2.imshow('KERNEL_RECT', erosion)
- 	cv2.imwrite('erosion', dilate)   
+    cv2.imshow('Erosion', erosion)
+    cv2.imwrite('Erosion.png', erosion)
     
-    kernel_rect = np.ones((5, 5), np.uint8)
+    #kernel_rect = np.ones((5, 5), np.uint8)
     
     kernel_round = np.array([[0,0,0,1,1,1,0,0,0],
                              [0,1,1,1,1,1,1,1,0],
@@ -73,14 +71,14 @@ while(True):
                              [1,1,1,1,1,1,1,1,1],
                              [0,1,1,1,1,1,1,1,0],
                              [0,1,1,1,1,1,1,1,0],
-                             [0,0,0,1,1,1,0,0,0]], dtype=np.uint8)
+                             [0,0,0,1,1,1,0,0,0]], dtype=np.uint8) #Kreisförmige Maske erzeugen
     
     #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
-    dilate = cv2.dilate(erosion, kernel_round, iterations = 2)    
+    dilate = cv2.dilate(erosion, kernel_round, iterations = 2)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
     
     cv2.imshow('DILATE', dilate)
-	cv2.imwrite('dilate', dilate)
-	
+    cv2.imwrite('dilate.png', dilate)
+    
     #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
   #  closing =  erosion
