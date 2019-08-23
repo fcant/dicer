@@ -1,5 +1,5 @@
 import numpy as np
 
-for i in range(2931,3200):
-    print(str(i) + ' ' + str(np.sin((i-2900)*0.00001)))
+for i in np.arange(2940,3200,1):
+    print(str(i-2900) + ' ' + str(np.sin(((i-2900)/50)*0.0003)))
     

@@ -74,7 +74,7 @@ six_min = int(config_values[18])
 six_max = int(config_values[19])
 
 
-steptime = 0.0003
+steptime = 0.0004
 
 #ret, frame = cap.read() #ret gibt true oder false zurück, checkt ob video läuft
 
@@ -124,16 +124,16 @@ class liveView (threading.Thread):
       
 
 def stepper():
-    for i in range(3200):        
-        if (i > 2931):
-            steptime = np.sin((i-2900)*0.00001)
-        else:
-            steptime = 0.0003
+    for i in range(3200):
+        steptime = 0.0004
+        if (i > 2940):
+            steptime = np.sin(((i-2900)/50)*steptime)
+
         GPIO.output(4, GPIO.HIGH)
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(1)
+    time.sleep(0.8)
 
 def reset():
     global rollnumber
@@ -294,38 +294,52 @@ def counting(image):
         for x in range(0,229):
             for y in range(0,229):
                 if image[x,y] == 0:
-                    b_pixels += 1   
+                    b_pixels += 1
+        
+        print(number,': ',b_pixels)
     
     if calibrating.get() == 1:
         if number == 1 and b_pixels < one_min:
-            one_min = b_pixels
+            one_min = b_pixels-50
+            one += 1
         elif number == 1 and b_pixels > one_max:
-            one_max = b_pixels
+            one_max = b_pixels+50
+            one += 1
 
         elif number == 2 and b_pixels < two_min:
-            two_min = b_pixels
+            two_min = b_pixels-50
+            two += 1
         elif number == 2 and b_pixels > two_max:
-            two_max = b_pixels
+            two_max = b_pixels+50
+            two += 1
 
         elif number == 3 and b_pixels < three_min:
-            three_min = b_pixels
+            three_min = b_pixels-50
+            three += 1
         elif number == 3 and b_pixels > three_max:
-            three_max = b_pixels
+            three_max = b_pixels+50
+            three += 1
             
         elif number == 4 and b_pixels < four_min:
-            four_min = b_pixels
+            four_min = b_pixels-50
+            four += 1
         elif number == 4 and b_pixels > four_max:
-            four_max = b_pixels
+            four_max = b_pixels+50
+            four += 1
 
         elif number == 5 and b_pixels < five_min:
-            five_min = b_pixels
+            five_min = b_pixels-50
+            five += 1
         elif number == 5 and b_pixels > five_max:
-            five_max = b_pixels
+            five_max = b_pixels+50
+            five += 1
                  
         elif number == 6 and b_pixels < six_min:
-            six_min = b_pixels
+            six_min = b_pixels-50
+            six += 1
         elif number == 6 and b_pixels > six_max:
-            six_max = b_pixels
+            six_max = b_pixels+50
+            six += 1
             
         config_values[3] = str(one_min)+'\n'
         config_values[4]= str(one_max)+'\n'
@@ -356,10 +370,10 @@ def counting(image):
             five += 1
         elif start_stop.get() == 1 and taking_image == 1 and number == 6 and (b_pixels > six_min and b_pixels < six_max):        
             six += 1
-        elif (number > 6 or number < 1) and taking_image == 1:
+        elif taking_image == 1:
             if start_stop.get() == 1:
                 errorcnt = errorcnt + 1
-                if error_logging == 1:
+                if error_logging.get() == 1:
                     cv2.imwrite('errors/'+ str(errorcnt) + 'error PROCESSED.png', image)
                     raw = cv2.imread('last_raw.png')           
                     cv2.imwrite('errors/' + str(errorcnt) + ' error RAW.png', raw)            
@@ -389,8 +403,8 @@ def logging(numbers):
     values = [numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]]
     
     ax.cla()
-    ax.set_xlabel('Augenzahlen')
-    ax.set_ylabel('Häufigkeit')
+    ax.set_xlabel('Number')
+    ax.set_ylabel('Count')
     ax.bar([1,2,3,4,5,6], values)
  
     canvas1.draw()

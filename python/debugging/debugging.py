@@ -13,24 +13,6 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
-file = open('config', 'r')
-old_values = file.readlines()
-file.close()
-
-one_min = int(old_values[3])
-one_max = int(old_values[4])
-two_min = int(old_values[6])
-two_max = int(old_values[7])
-three_min = int(old_values[9])
-three_max = int(old_values[10])
-four_min = int(old_values[12])
-four_max = int(old_values[13])
-five_min = int(old_values[15])
-five_max = int(old_values[16])
-six_min = int(old_values[18])
-six_max = int(old_values[19])
-
-
 #binary_slider.set(int(old_values[1]))
 
 #ret, empty_frame = cap.read() # ret gibt true oder false zurück, checkt ob video läuft
@@ -73,11 +55,13 @@ while(True):
     kernel_rect = np.ones((7, 7), np.uint8) #quadratische Maske erzeugen
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
 
+    cv2.imshow('OPENING', opening)
+    cv2.imwrite('OPENING.png', opening)
+
+
     dark_numbers = False
     
     if dark_numbers == True:
-                  
-        cv2.imshow('opening', opening) 
        
         w = opening.shape[1]  # y
         h = opening.shape[0]  # x
@@ -104,9 +88,6 @@ while(True):
     #cv2.imshow('KERNEL_ROUND', erosion1)
 
     #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
-
-
-    cv2.imshow('bit_not', opening)  
   
     kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
     erosion = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
