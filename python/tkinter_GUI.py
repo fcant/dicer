@@ -525,7 +525,7 @@ Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=1, column=11)
 Button(bottomFrame, text='Reset', command=reset).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
 
-dummy_image = PhotoImage(file='dummy_image.png')
+dummy_image = cv2.imopen('dummy_image.png')
 
 Label(bottomFrame, text='Motor Control: ').grid(row=1, column=9, sticky=E, padx=20)
 raw_image = Label(topFrame, image=dummy_image)

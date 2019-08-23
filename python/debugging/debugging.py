@@ -41,22 +41,29 @@ while(True):
 
     real_frame = real_frame[y:y + h, x:x + w] #zuschneiden
 
+
+
     input_frame = real_frame # umspeichern um das Originalbild zu behalten
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
+    input_frame = cv2.imread('INPUT2.png')
+
     cv2.imshow('INPUT', input_frame) #anzeigen
-    cv2.imwrite('INPUT.png', input_frame) #abspeichern
+    cv2.imwrite('input.png', input_frame) #abspeichern
 
     ret, binary_image = cv2.threshold(input_frame, 200, 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
 
+
+
+
     cv2.imshow('INPUT_BINARY', binary_image)
-    cv2.imwrite('INPUT_BINARY.png', binary_image)
+    cv2.imwrite('input_binary.png', binary_image)
 
     kernel_rect = np.ones((7, 7), np.uint8) #quadratische Maske erzeugen
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
 
     cv2.imshow('OPENING', opening)
-    cv2.imwrite('OPENING.png', opening)
+    cv2.imwrite('opening.png', opening)
 
 
     dark_numbers = False
@@ -78,6 +85,14 @@ while(True):
     
     else:   
         opening = cv2.bitwise_not(opening)
+        
+        detector = cv2.SimpleBlobDetector_create(blob_params)
+        keypoints = detector.detect(opening)
+        img_with_keypoints = cv2.drawKeypoints(opening, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+ 
+        cv2.imshow('keypoints_unfitlered', img_with_keypoints)
+        
+        
 
 
     #kernel = np.ones((5, 5), np.uint8)
@@ -89,7 +104,7 @@ while(True):
 
     #kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(9,9))
   
-    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
+    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
     erosion = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
 
     cv2.imshow('Erosion', erosion)
