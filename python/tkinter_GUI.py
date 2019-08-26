@@ -133,7 +133,7 @@ def stepper():
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(0.8)
+    time.sleep(0.9)
 
 def reset():
     global rollnumber
@@ -203,26 +203,29 @@ def img_processing(image_input):
 
     ret, binary_image = cv2.threshold(image_input, binary_slider.get(), 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
     
-    kernel_rect = np.ones((7, 7), np.uint8) #quadratische Maske erzeugen
-    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
-    
     if dark_numbers.get() == 1:
        
-        w = opening.shape[1]  # y
-        h = opening.shape[0]  # x
+        w = binary_image.shape[1]  # y
+        h = binary_image.shape[0]  # x
 
         mask = np.zeros((h + 2, w + 2), np.uint8)
     
-        cv2.floodFill(opening, mask, (0, 0), 255);
-        cv2.floodFill(opening, mask, (0, 229), 255)
-        
+        cv2.floodFill(binary_image, mask, (0, 0), 255);
+        cv2.floodFill(binary_image, mask, (0, 200), 255)
+ 
+        kernel_rect = np.ones((5, 5), np.uint8) #quadratische Maske erzeugen
+ 
+        clean_eyes = cv2.erode(binary_image, kernel_rect, iterations = 1) #zweimal Erosion anwenden
+    
+    
     else:   
-        opening = cv2.bitwise_not(opening)
-
-
-    kernel_round = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12)) #Ellipse als Maske erzeugen, un Punktförmigkeit der Augenzahlen beizubehalten
-    dilate = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
-
+        binary_image = cv2.bitwise_not(binary_image)
+                
+        clean_eyes = binary_image
+  
+  
+ 
+    
     kernel_round = np.array([[0,0,0,1,1,1,0,0,0],
                              [0,1,1,1,1,1,1,1,0],
                              [0,1,1,1,1,1,1,1,0],
@@ -233,7 +236,17 @@ def img_processing(image_input):
                              [0,1,1,1,1,1,1,1,0],
                              [0,0,0,1,1,1,0,0,0]], dtype=np.uint8) #Kreisförmige Maske erzeugen
     
-    erode= cv2.erode(dilate, kernel_round, iterations = 1)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
+    dilate = cv2.dilate(clean_eyes, kernel_round, iterations = 2) #zweimal Erosion anwenden
+ 
+    erode = cv2.erode(dilate, kernel_round, iterations = 1) #zweimal Erosion anwenden
+    
+    
+    
+    #detector = cv2.SimpleBlobDetector_create(blob_params)
+    #keypoints = detector.detect(erode)
+    #img_with_keypoints = cv2.drawKeypoints(erode, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+ 
+    #cv2.imshow('keypoints', img_with_keypoints)
 
     
     #cv2image2 = cv2.cvtColor(closing, cv2.COLOR_BGR2RGBA)
@@ -525,7 +538,7 @@ Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=1, column=11)
 Button(bottomFrame, text='Reset', command=reset).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
 
-dummy_image = cv2.imopen('dummy_image.png')
+dummy_image = PhotoImage(file='dummy_image.png')
 
 Label(bottomFrame, text='Motor Control: ').grid(row=1, column=9, sticky=E, padx=20)
 raw_image = Label(topFrame, image=dummy_image)

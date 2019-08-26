@@ -39,7 +39,7 @@ while(True):
     x=280
     w=230
 
-    real_frame = real_frame[y:y + h, x:x + w] #zuschneiden
+    #real_frame = real_frame[y:y + h, x:x + w] #zuschneiden
 
 
 
@@ -49,7 +49,7 @@ while(True):
     #input_frame = cv2.imread('INPUT2.png')
 
     cv2.imshow('INPUT', input_frame) #anzeigen
-    cv2.imwrite('input.png', input_frame) #abspeichern
+    #cv2.imwrite('input.png', input_frame) #abspeichern
 
     ret, binary_image = cv2.threshold(input_frame, 200, 255, cv2.THRESH_BINARY) #Schwellenwertbild abspeichern
 
@@ -57,13 +57,13 @@ while(True):
 
 
     cv2.imshow('INPUT_BINARY', binary_image)
-    cv2.imwrite('input_binary.png', binary_image)
+    #cv2.imwrite('input_binary.png', binary_image)
 
     kernel_rect = np.ones((7, 7), np.uint8) #quadratische Maske erzeugen
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_rect)
 
     cv2.imshow('OPENING', opening)
-    cv2.imwrite('opening.png', opening)
+    #cv2.imwrite('opening.png', opening)
 
 
     dark_numbers = False
@@ -108,7 +108,7 @@ while(True):
     erosion = cv2.dilate(opening, kernel_round, iterations = 1) #zweimal Erosion anwenden
 
     cv2.imshow('Erosion', erosion)
-    cv2.imwrite('Erosion.png', erosion)
+    #cv2.imwrite('Erosion.png', erosion)
     
     #kernel_rect = np.ones((5, 5), np.uint8)
     
@@ -126,7 +126,7 @@ while(True):
     dilate = cv2.erode(erosion, kernel_round, iterations = 1)   #Dilatation anwenden, um weiße Punkte wieder zu vergrößern 
     
     cv2.imshow('DILATE', dilate)
-    cv2.imwrite('dilate.png', dilate)
+    #cv2.imwrite('dilate.png', dilate)
     
     #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
