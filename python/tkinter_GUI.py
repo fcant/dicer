@@ -115,7 +115,7 @@ class liveView (threading.Thread):
         imgshow_running = 1
         #print ("============Starting " + self.name)
         grey = get_image()
-        show_raw()
+        show_raw(grey)
         keypoint_img = img_processing(grey)
         number = counting(keypoint_img)
         show_output()
@@ -135,15 +135,7 @@ def stepper():
         time.sleep(steptime)
     time.sleep(0.9)
 
-def reset():
-    global rollnumber
-    global one
-    global two
-    global three
-    global four
-    global five
-    global six
-    global errorcnt
+def reset_log():
     
     rollnumber=0
     one=0
@@ -153,6 +145,41 @@ def reset():
     five=0
     six=0
     errorcnt=0
+    
+def reset_calibration():
+
+
+    
+    one_min = 9999
+    one_max = 0
+    two_min = 9999
+    two_max = 0
+    three_min = 9999
+    three_max = 0
+    four_min = 9999
+    four_max = 0
+    five_min = 9999
+    five_max = 0
+    six_min = 9999
+    six_max = 0
+    
+    
+    config_values[3] = str(one_min)+'\n'
+    config_values[4]= str(one_max)+'\n'
+    config_values[6]= str(two_min)+'\n'
+    config_values[7]= str(two_max)+'\n'
+    config_values[9]= str(three_min)+'\n'
+    config_values[10] = str(three_max)+'\n'
+    config_values[12] = str(four_min )+'\n'
+    config_values[13] = str(four_max)+'\n'
+    config_values[15] = str(five_min )+'\n'
+    config_values[16] = str(five_max )+'\n'
+    config_values[18] = str(six_min )+'\n'
+    config_values[19] = str(six_max)+'\n'
+
+    file = open('config', 'w')
+    file.writelines(config_values)
+    file.close() 
     
 def slider_plus():
     stand = binary_slider.get()
@@ -422,13 +449,21 @@ def logging(numbers):
  
     canvas1.draw()
 
-def show_raw():
+def show_raw(image):
     if bin_true.get() == 1:
-        raw = cv2.imread('last_raw.png')
+        #raw = cv2.imread('last_raw.png')
+        raw = image
         ret, binary_image = cv2.threshold(raw, int(binary_slider.get()) , 255, cv2.THRESH_BINARY)
-        cv2.imwrite('last_bin.png', binary_image)
-        img2 = ImageTk.PhotoImage(Image.open('last_bin.png'))   
-        raw_image.configure(image=img2)
+        #cv2.imwrite('last_bin.png', binary_image)
+   
+        img2 = Image.fromarray(binary_image)
+        imgtk1 = ImageTk.PhotoImage(image=img2)
+        raw_image.imgtk = imgtk1
+        raw_image.configure(image=imgtk1)
+   
+        
+        #img2 = ImageTk.PhotoImage(Image.open('last_bin.png'))   
+        #raw_image.configure(image=img2)
         raw_image.image = img2 
     else:
         img2 = ImageTk.PhotoImage(Image.open('last_raw.png'))   
@@ -478,7 +513,7 @@ def mainprogram():
             thread1.start()
         if stepper_running == 0 and taking_image == 1:
             raw_image = get_image()
-            show_raw()
+            show_raw(raw_image)
             processed_img = img_processing(raw_image)
             numbers = counting(processed_img)
             taking_image = 0
@@ -521,6 +556,7 @@ Checkbutton(bottomFrame, text="Error logging", variable=error_logging).grid(row=
 Checkbutton(bottomFrame, text="dark numbers", variable=dark_numbers).grid(row=3, column=4)
 Checkbutton(bottomFrame, text="calibrating", variable=calibrating).grid(row=3, column=5)
 
+Button(bottomFrame, text='Reset calibration', command=reset_calibration).grid(row=3, column=6)
 
 Label(bottomFrame, text='Binary value: ').grid(row=3, column=0, sticky=E, padx=10)
 
@@ -536,7 +572,9 @@ Button(bottomFrame, text='+', command=slider_plus).grid(row=3, column=3, sticky=
 Button(bottomFrame, text='Save Image', command=save_image).grid(row=1, column=8, sticky=E)
 Button(bottomFrame, text='Step up', command=step_plus).grid(row=1, column=10)
 Button(bottomFrame, text='Step down', command=step_minus).grid(row=1, column=11)
-Button(bottomFrame, text='Reset', command=reset).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
+Button(bottomFrame, text='Reset log', command=reset_log).grid(row=0, column=0, rowspan=2,padx=5, pady=5, sticky=N)
+
+
 
 dummy_image = PhotoImage(file='dummy_image.png')
 
