@@ -133,9 +133,20 @@ def stepper():
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(0.9)
+    time.sleep(1)
 
 def reset_log():
+  
+    global rollnumber
+    global one
+    global two
+    global three
+    global four
+    global five
+    global six
+    global errorcnt
+    
+    
     
     rollnumber=0
     one=0
@@ -148,6 +159,19 @@ def reset_log():
     
 def reset_calibration():
 
+
+    global one_min
+    global one_max
+    global two_min
+    global two_max
+    global three_min
+    global three_max
+    global four_min
+    global four_max
+    global five_min
+    global five_max
+    global six_min
+    global six_max
 
     
     one_min = 9999
