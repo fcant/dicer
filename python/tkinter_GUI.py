@@ -74,7 +74,7 @@ six_min = int(config_values[18])
 six_max = int(config_values[19])
 
 
-steptime = 0.0004
+global_steptime = 0.00008
 
 #ret, frame = cap.read() #ret gibt true oder false zurück, checkt ob video läuft
 
@@ -125,7 +125,7 @@ class liveView (threading.Thread):
 
 def stepper():
     for i in range(3200):
-        steptime = 0.0004
+        steptime = global_steptime
         if (i > 2940):
             steptime = np.sin(((i-2900)/50)*steptime)
 
@@ -133,7 +133,7 @@ def stepper():
         time.sleep(steptime)
         GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
-    time.sleep(1)
+    time.sleep(0.3)
 
 def reset_log():
   
