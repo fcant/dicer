@@ -5,9 +5,9 @@ import numpy as np
 import cv2
 from tkinter import *
 from PIL import ImageTk, Image
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import smtplib
@@ -16,7 +16,7 @@ from email.mime.multipart import MIMEMultipart
 
 #################################################################################################################
 
-global_steptime = 0.00008  # Abstand zwischen den Schrittmotor schritten
+global_steptime = 0.00006  # Abstand zwischen den Schrittmotor schritten
 write_email = True  # Email mit Messdaten versenden?
 email_log_number = 5000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
@@ -34,15 +34,15 @@ cap = cv2.VideoCapture(0)  # Videoquelle initialisieren, Zahl gibt Videoquelle a
 
 root = Tk()
 root.title('Dicer V0.7')
-root.wm_iconbitmap('2dice.ico')
+#root.wm_iconbitmap('2dice.ico')
 root.minsize(1250,300)
 # Icons made by "https://www.flaticon.com/authors/freepik" from https://www.flaticon.com/
 
 # Raspberry IOs initialisieren
-# GPIO.setwarnings(False)
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setup(17, GPIO.OUT)
-# GPIO.setup(4, GPIO.OUT)
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
+GPIO.setup(4, GPIO.OUT)
 
 # Fleckendetektor konfigurieren
 blob_params = cv2.SimpleBlobDetector_Params()
@@ -122,14 +122,14 @@ class LiveView(threading.Thread):
 
 
 def stepper():
-    for i in range(5):
+    for i in range(3200):
         steptime = global_steptime
         # if (i > 2940):
         #    steptime = np.sin(((i-2900)/50)*steptime)
 
-        # GPIO.output(4, GPIO.HIGH)
+        GPIO.output(4, GPIO.HIGH)
         time.sleep(steptime)
-        # GPIO.output(4, GPIO.LOW)
+        GPIO.output(4, GPIO.LOW)
         time.sleep(steptime)
     time.sleep(0.3)
 
@@ -546,8 +546,11 @@ def mainprogram():
     if start_stop is True and liveview_running is False:  # Start Button gedrückt und LiveView Prozess fertig?
         if stepper_run is False and img_proc_run is False:
             stepper_run = True
-            MotorThread = StepperThread()
-            MotorThread.start()
+            stepper()
+            img_proc_run = True  # Gibt die Bildaufnahme und Verarbeitung frei
+            stepper_run = False  # Motor fertig gedreht
+            #MotorThread = StepperThread()
+            #MotorThread.start()
         if stepper_run is False and img_proc_run is True:  # Motor fertig gedreht und Bildfreigabe von Motor erhalten?
             raw_image = get_image()
             show_raw(raw_image)
