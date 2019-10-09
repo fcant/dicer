@@ -1,5 +1,11 @@
 import numpy as np
 
-for i in np.arange(2940,3200,1):
-    print(str(i-2900) + ' ' + str(np.sin(((i-2900)/50)*0.0003)))
+global_steptime = 0.00003
+
+steptime = global_steptime
+
+anlauf = 50
+
+for i in np.arange(0,anlauf,1):
+    print(str(i/anlauf) + ' ' + str((np.cos(i/anlauf)+0.5)*steptime))
     

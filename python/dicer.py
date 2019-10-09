@@ -16,13 +16,13 @@ from email.mime.multipart import MIMEMultipart
 
 #################################################################################################################
 
-global_steptime = 0.00006  # Abstand zwischen den Schrittmotor schritten
+global_steptime = 0.0001  # Abstand zwischen den Schrittmotor schritten
 write_email = True  # Email mit Messdaten versenden?
 email_log_number = 5000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 # Emailserver konfigurieren und starten
-server = smtplib.SMTP('mail.gmx.net', 587)
-server.starttls()
+#server = smtplib.SMTP('mail.gmx.net', 587)
+#server.starttls()
 
 cap = cv2.VideoCapture(0)  # Videoquelle initialisieren, Zahl gibt Videoquelle an
 
@@ -123,9 +123,11 @@ class LiveView(threading.Thread):
 
 def stepper():
     for i in range(3200):
-        steptime = global_steptime
-        # if (i > 2940):
-        #    steptime = np.sin(((i-2900)/50)*steptime)
+            
+        if (i > 2900):
+            steptime = steptime + global_steptime * 0.1
+        else:
+            steptime = global_steptime    
 
         GPIO.output(4, GPIO.HIGH)
         time.sleep(steptime)
@@ -232,21 +234,21 @@ def slider_minus():
 
 
 def step_plus():
-    # GPIO.output(17, GPIO.LOW)
-    # GPIO.output(4, GPIO.HIGH)
-    # time.sleep(steptime)
-    # GPIO.output(4, GPIO.LOW)
-    # time.sleep(steptime)
+    GPIO.output(17, GPIO.LOW)
+    GPIO.output(4, GPIO.HIGH)
+    time.sleep(global_steptime)
+    GPIO.output(4, GPIO.LOW)
+    time.sleep(global_steptime)
     print('step')
 
 
 def step_minus():
-    # GPIO.output(17, GPIO.HIGH)
-    # GPIO.output(4, GPIO.HIGH)
-    # time.sleep(steptime)
-    # GPIO.output(4, GPIO.LOW)
-    # time.sleep(steptime)
-    # GPIO.output(17, GPIO.LOW)
+    GPIO.output(17, GPIO.HIGH)
+    GPIO.output(4, GPIO.HIGH)
+    time.sleep(global_steptime)
+    GPIO.output(4, GPIO.LOW)
+    time.sleep(global_steptime)
+    GPIO.output(17, GPIO.LOW)
     print('step')
 
 
@@ -260,11 +262,11 @@ def get_image():
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(grey, 'NO CAMERA', (10, 200), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
     else:
-        y = 200
-        h = 230
+        y = 170
+        h = 280
 
-        x = 270
-        w = 230
+        x = 220
+        w = 280
 
         frame1 = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
@@ -546,11 +548,8 @@ def mainprogram():
     if start_stop is True and liveview_running is False:  # Start Button gedrückt und LiveView Prozess fertig?
         if stepper_run is False and img_proc_run is False:
             stepper_run = True
-            stepper()
-            img_proc_run = True  # Gibt die Bildaufnahme und Verarbeitung frei
-            stepper_run = False  # Motor fertig gedreht
-            #MotorThread = StepperThread()
-            #MotorThread.start()
+            MotorThread = StepperThread()
+            MotorThread.start()
         if stepper_run is False and img_proc_run is True:  # Motor fertig gedreht und Bildfreigabe von Motor erhalten?
             raw_image = get_image()
             show_raw(raw_image)
@@ -655,8 +654,8 @@ Checkbutton(bottomFrame, text="dark numbers", variable=dark_numbers).grid(row=0,
 Checkbutton(bottomFrame, text="calibrating", variable=calibrating).grid(row=0, column=4)
 
 Label(bottomFrame, text='Motor Control: ').grid(row=0, column=9, sticky=E, padx=20)
-Button(bottomFrame, text='Step up', command=step_plus).grid(row=0, column=10)
-Button(bottomFrame, text='Step down', command=step_minus).grid(row=0, column=11)
+Button(bottomFrame, text='Step left', command=step_plus).grid(row=0, column=10)
+Button(bottomFrame, text='Step right', command=step_minus).grid(row=0, column=11)
 
 Label(bottomFrame, text='Binary value: ').grid(row=2, column=0, sticky=E, padx=10)
 Button(bottomFrame, text='-', command=slider_minus).grid(row=2, column=1, sticky=E)

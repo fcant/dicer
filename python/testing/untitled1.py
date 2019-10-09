@@ -20,17 +20,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(17, GPIO.OUT)
 GPIO.setup(4, GPIO.OUT)
 
-steptime = 0.0001  # Abstand zwischen den Schrittmotor schritten
+global_steptime = 0.00005  # Abstand zwischen den Schrittmotor schritten
 anlauf = 200
 
-while True:
-    for i in range(3200):
-
-        GPIO.output(4, GPIO.HIGH)
-        time.sleep(steptime)
-        GPIO.output(4, GPIO.LOW)
-        time.sleep(steptime)
-    time.sleep(0.5)
-
-
+GPIO.output(4, GPIO.HIGH)
 
