@@ -16,7 +16,7 @@ from email.mime.multipart import MIMEMultipart
 
 cap = cv2.VideoCapture(0)
 
-global_steptime = 0.0001
+global_steptime = 0.00015
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -29,6 +29,7 @@ def step_plus():
     time.sleep(global_steptime)
     GPIO.output(4, GPIO.LOW)
     time.sleep(global_steptime)
+    GPIO.output(17, GPIO.LOW)
     print('step')
 
 
@@ -45,7 +46,7 @@ def step_minus():
 while True:
     for i in range(3200):
                 
-        if (i > 2900):
+        if (i > 3100):
             steptime = steptime + global_steptime * 0.1
         else:
             steptime = global_steptime    
@@ -114,6 +115,5 @@ while True:
     grey = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
         
     cv2.imshow('output',grey)
-
-    cv2.waitKey()
     
+    cv2.waitKey(100)
