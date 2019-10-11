@@ -16,6 +16,14 @@ from email.mime.multipart import MIMEMultipart
 
 darknumbers=False
 
+write_email = True  # Email mit Messdaten versenden?
+email_log_number = 10  # Nach wie vielen Würfen soll eine Email geschrieben werden
+
+# Emailserver konfigurieren und starten
+server = smtplib.SMTP('mail.gmx.net', 587)
+server.starttls()
+server.login('python-email@gmx.de', 'bojack123.')
+
 cap = cv2.VideoCapture(0)
 
 global_steptime = 0.00015
@@ -65,21 +73,33 @@ def step_minus():
     print('step')
 
 def send_email(numbers):
-    timestamp = timer.cget("text")
 
-    server.login('python-email@gmx.de', 'bojack123.')
+
 
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
-    msg['To'] = 'zug209@gmx.net'
+    msg['To'] = 'fabio.canterino@smail.th-koeln.de'
     msg['Subject'] = 'Dicer update'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(numbers[6]) + ' Std: ' + str(
-        numbers[7]) + ' Time: ' + str(timestamp)
+        numbers[7])
     msg.attach(MIMEText(message))
 
     server.send_message(msg)
-    
+
+def logging(numbers):
+    file = open('log', 'w')
+    file.write('Einz:' + str(numbers[0]) + '\n')
+    file.write('Zwei:' + str(numbers[1]) + '\n')
+    file.write("Drei: " + str(numbers[2]) + '\n')
+    file.write("Vier: " + str(numbers[3]) + '\n')
+    file.write("Fuenf: " + str(numbers[4]) + '\n')
+    file.write("Sechs: " + str(numbers[5]) + '\n')
+    file.write('Fehler: ' + str(numbers[6]) + '\n')
+    file.write('Gesamt: ' + str(numbers[7]) + '\n')
+    file.write('Standardabw: ' + str(numbers[8]) + '\n')
+    file.close()
+
 def get_images():
     for i in range(5):
         ret, frame = cap.read()
@@ -107,7 +127,7 @@ def get_images():
         
         pos_img = frame[y:y + h, x:x + w]
         pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-        ret, pos_img = cv2.threshold(pos_img, 230, 255,cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
+        ret, pos_img = cv2.threshold(pos_img, 240, 255,cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
 
     return grey, pos_img    
 
@@ -192,6 +212,7 @@ def counting(image):
         six += 1
     else:
         errorcnt = errorcnt + 1
+        cv2.imwrite('errors/' + str(errorcnt) + ' error.png', image)
 
     rolled = [one, two, three, four, five, six]
     std = np.std(rolled)
@@ -268,6 +289,10 @@ while True:
     numbers,keypoint_img = counting(processed_img)
     cv2.imshow('Output',keypoint_img)      
     
+    logging(numbers)
+    
+    if write_email is True and (numbers[7]%email_log_number) == 0:
+        send_email(numbers)
     
     
     print('=================')    
