@@ -52,6 +52,10 @@ five = 0
 six = 0
 std= 0
 errorcnt = 0
+last_number = 0
+
+longest = [0] * 6
+row = [0] * 6
 
 def step_plus():
     GPIO.output(17, GPIO.LOW)
@@ -72,9 +76,8 @@ def step_minus():
     GPIO.output(17, GPIO.LOW)
     print('step')
 
+
 def send_email(numbers):
-
-
 
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
@@ -87,18 +90,24 @@ def send_email(numbers):
 
     server.send_message(msg)
 
+
 def logging(numbers):
+
+    longest_numbers = numbers[9]
+
     file = open('log', 'w')
-    file.write('Einz:' + str(numbers[0]) + '\n')
-    file.write('Zwei:' + str(numbers[1]) + '\n')
-    file.write("Drei: " + str(numbers[2]) + '\n')
-    file.write("Vier: " + str(numbers[3]) + '\n')
-    file.write("Fuenf: " + str(numbers[4]) + '\n')
-    file.write("Sechs: " + str(numbers[5]) + '\n')
+    file.write('Einz:' + str(numbers[0]) + ';' + longest_numbers[0] + '\n')
+    file.write('Zwei:' + str(numbers[1]) + ';' + longest_numbers[1] + '\n')
+    file.write("Drei: " + str(numbers[2]) + ';' + longest_numbers[2] + '\n')
+    file.write("Vier: " + str(numbers[3]) + ';' + longest_numbers[3] + '\n')
+    file.write("Fuenf: " + str(numbers[4]) + ';' + longest_numbers[4] + '\n')
+    file.write("Sechs: " + str(numbers[5]) + ';' + longest_numbers[5] + '\n')
     file.write('Fehler: ' + str(numbers[6]) + '\n')
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.write('Standardabw: ' + str(numbers[8]) + '\n')
+
     file.close()
+
 
 def get_images():
     for i in range(5):
@@ -117,8 +126,7 @@ def get_images():
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
-        
-        
+
         y = 440
         h = 10
 
@@ -130,6 +138,7 @@ def get_images():
         ret, pos_img = cv2.threshold(pos_img, 240, 255,cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
 
     return grey, pos_img    
+
 
 def img_processing(image_input):
     # input_frame = cv2.cvtColor(image_input, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
@@ -172,6 +181,7 @@ def img_processing(image_input):
 
     return erode
 
+
 def counting(image):
     global rollnumber
     global one
@@ -181,46 +191,85 @@ def counting(image):
     global five
     global six
     global errorcnt
+    global last_number
+
+    global longest
+    global row
 
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
     img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0, 0, 255),
                                            cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    
-    
+
     number = 0
 
     for i in keypoints[0:]:
         number = number + 1
 
-
     rollnumber += 1
     print('DETECTED: ', number)
     cv2.putText(img_with_keypoints, str(number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-    
+
     if number == 1:  
         one += 1
+        if last_number == number:
+            row[0] += 1
+        else:
+            row[0] = 1
     elif number == 2: 
         two += 1
+        if last_number == number:
+            row[1] += 1
+        else:
+            row[1] = 1
     elif number == 3: 
         three += 1
-    elif number == 4:  
+        if last_number == number:
+            row[2] += 1
+        else:
+            row[2] = 1
+    elif number == 4:
         four += 1
+        if last_number == number:
+            row[3] += 1
+        else:
+            row[3] = 1
     elif number == 5: 
         five += 1
-    elif number == 6: 
+        if last_number == number:
+            row[4] += 1
+        else:
+            row[4] = 1
+    elif number == 6:
         six += 1
+        if last_number == number:
+            row[5] += 1
+        else:
+            row[5] = 1
     else:
         errorcnt = errorcnt + 1
         cv2.imwrite('errors/' + str(errorcnt) + ' error.png', image)
 
+    if row[0] > longest[0]:
+        longest[0] = row[0]
+    if row[1] > longest[1]:
+        longest[1] = row[1]
+    if row[2] > longest[2]:
+        longest[2] = row[2]
+    if row[3] > longest[3]:
+        longest[3] = row[3]
+    if row[4] > longest[4]:
+        longest[4] = row[4]
+    if row[5] > longest[5]:
+        longest[5] = row[5]
+
+    last_number = number
+
     rolled = [one, two, three, four, five, six]
-    std = np.std(rolled)
+    std_dev = np.std(rolled)
 
-    all_numbers = [one, two, three, four, five, six, errorcnt, rollnumber, std]
-    
+    all_numbers = [one, two, three, four, five, six, errorcnt, rollnumber, std_dev, longest]
 
-    
     return all_numbers, img_with_keypoints
 
 
@@ -279,21 +328,17 @@ while True:
             print('correct position:')            
         print("X:", cX, "Y:", cY)
 
-
     cv2.imshow('newpos',pos_img)
-      
-      
-    
-    cv2.imshow('Input',real_image)  
+
+    cv2.imshow('Input', real_image)
     processed_img = img_processing(real_image)
-    numbers,keypoint_img = counting(processed_img)
-    cv2.imshow('Output',keypoint_img)      
+    numbers, keypoint_img = counting(processed_img)
+    cv2.imshow('Output', keypoint_img)
     
     logging(numbers)
-    
+
     if write_email is True and (numbers[7]%email_log_number) == 0:
         send_email(numbers)
-    
     
     print('=================')    
     print('One: ', numbers[0])
