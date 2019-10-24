@@ -17,12 +17,10 @@ from email.mime.multipart import MIMEMultipart
 darknumbers=False
 
 write_email = True  # Email mit Messdaten versenden?
-email_log_number = 10  # Nach wie vielen Würfen soll eine Email geschrieben werden
+email_log_number = 500  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 # Emailserver konfigurieren und starten
-server = smtplib.SMTP('mail.gmx.net', 587)
-server.starttls()
-server.login('python-email@gmx.de', 'bojack123.')
+
 
 cap = cv2.VideoCapture(0)
 
@@ -79,6 +77,11 @@ def step_minus():
 
 def send_email(numbers):
 
+    server = smtplib.SMTP('mail.gmx.net', 587)
+    server.starttls()
+    server.login('python-email@gmx.de', 'bojack123.')
+
+
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
@@ -96,12 +99,12 @@ def logging(numbers):
     longest_numbers = numbers[9]
 
     file = open('log', 'w')
-    file.write('Einz:' + str(numbers[0]) + ';' + longest_numbers[0] + '\n')
-    file.write('Zwei:' + str(numbers[1]) + ';' + longest_numbers[1] + '\n')
-    file.write("Drei: " + str(numbers[2]) + ';' + longest_numbers[2] + '\n')
-    file.write("Vier: " + str(numbers[3]) + ';' + longest_numbers[3] + '\n')
-    file.write("Fuenf: " + str(numbers[4]) + ';' + longest_numbers[4] + '\n')
-    file.write("Sechs: " + str(numbers[5]) + ';' + longest_numbers[5] + '\n')
+    file.write('Einz:' + str(numbers[0]) + ';' + str(longest_numbers[0]) + '\n')
+    file.write('Zwei:' + str(numbers[1]) + ';' + str(longest_numbers[1]) + '\n')
+    file.write("Drei: " + str(numbers[2]) + ';' + str(longest_numbers[2]) + '\n')
+    file.write("Vier: " + str(numbers[3]) + ';' + str(longest_numbers[3]) + '\n')
+    file.write("Fuenf: " + str(numbers[4]) + ';' + str(longest_numbers[4]) + '\n')
+    file.write("Sechs: " + str(numbers[5]) + ';' + str(longest_numbers[5]) + '\n')
     file.write('Fehler: ' + str(numbers[6]) + '\n')
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.write('Standardabw: ' + str(numbers[8]) + '\n')
@@ -118,20 +121,20 @@ def get_images():
         # grey = cv2.imread('INPUT.png', 0)
         cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
     else:
-        y = 130
-        h = 280
+        y = 110
+        h = 300
 
-        x = 220
-        w = 280
+        x = 200
+        w = 300
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
 
-        y = 440
+        y = 50
         h = 10
 
-        x = 220
-        w = 280
+        x = 200
+        w = 300
         
         pos_img = frame[y:y + h, x:x + w]
         pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
@@ -175,9 +178,9 @@ def img_processing(image_input):
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(clean_eyes, kernel_round, iterations=2)  # zweimal Erosion anwenden
+    dilate = cv2.dilate(clean_eyes, kernel_round, iterations=4)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=1)  # zweimal Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
     return erode
 
@@ -317,7 +320,7 @@ while True:
             time.sleep(global_steptime)
             GPIO.output(4, GPIO.LOW)
             time.sleep(global_steptime)      
-        elif(cX >145):
+        elif(cX >165):
             GPIO.output(17, GPIO.LOW)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
