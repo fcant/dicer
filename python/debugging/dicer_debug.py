@@ -16,7 +16,7 @@ from email.mime.multipart import MIMEMultipart
 
 darknumbers=False
 
-write_email = True  # Email mit Messdaten versenden?
+write_email = False  # Email mit Messdaten versenden?
 email_log_number = 500  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 # Emailserver konfigurieren und starten
@@ -129,6 +129,9 @@ def get_images():
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+        
+        cv2.imwrite('Input_image.png',grey)
+        cv2.imshow('Input_image',grey)
 
         y = 60
         h = 10
@@ -168,6 +171,9 @@ def img_processing(image_input):
 
         clean_eyes = binary_image
 
+    cv2.imwrite('binary.png', binary_image)
+    cv2.imshow('binary', binary_image) 
+
     kernel_round = np.array([[0, 0, 0, 1, 1, 1, 0, 0, 0],
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -180,8 +186,13 @@ def img_processing(image_input):
 
     dilate = cv2.dilate(clean_eyes, kernel_round, iterations=4)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
+    cv2.imwrite('Dilate.png', dilate)
+    cv2.imshow('Dilate', dilate)
 
+    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
+    
+    cv2.imwrite('Erode.png', erode)
+    cv2.imshow('Erode', erode)
     return erode
 
 
@@ -355,7 +366,7 @@ while True:
     print('Deviation: ', numbers[8])
     print('=================')   
 
-    cv2.waitKey(100)
+    cv2.waitKey()
 
 cap.release()
 cv2.destroyAllWindows()

@@ -3,7 +3,6 @@ from tkinter import *
 
 
 cap = cv2.VideoCapture(0)
-root = Tk()
 
 
 while(True):
@@ -20,9 +19,7 @@ while(True):
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-    root.mainloop()
     
 
 # When everything done, release the capture
-cap.release()
 cv2.destroyAllWindows()
