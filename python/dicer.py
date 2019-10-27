@@ -1,30 +1,40 @@
-import threading
-import datetime
-import time
+# import threading
+# import datetime
+# import time
+# from tkinter import *
+# from PIL import ImageTk, Image
+# import matplotlib.pyplot as plt
+# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# from matplotlib.figure import Figure
+
 import numpy as np
 import cv2
-from tkinter import *
-from PIL import ImageTk, Image
-import RPi.GPIO as GPIO
 import time
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-darknumbers=False
+gpios = True
+
+try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
+    import RPi.GPIO as GPIO
+
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.setup(4, GPIO.OUT)
+except ImportError:
+    gpios = False
+    print('Error - no GPIOS found')
+
+darknumbers = False  # Dunkle Würfelaugen
 
 write_email = True  # Email mit Messdaten versenden?
-email_log_number = 500  # Nach wie vielen Würfen soll eine Email geschrieben werden
+email_log_number = 10000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
-# Emailserver konfigurieren und starten
+cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
-
-cap = cv2.VideoCapture(0)
-
-global_steptime = 0.00015
+global_steptime = 0.00015  # Abstand zwischen den Schritten
 
 # Fleckendetektor konfigurieren
 blob_params = cv2.SimpleBlobDetector_Params()
@@ -35,26 +45,12 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-GPIO.setup(4, GPIO.OUT)
+all_numbers = [0] * 12  # [one, two, three, four, five, six, errorcnt, rollnumber, std_dev, longest, row, last_number]
 
+all_numbers[9] = [0] * 6  # 'longest' und 'row' enthalten jeweils 6 Werte
+all_numbers[10] = [0] * 6
 
-rollnumber = 0
-one = 0
-two = 0
-three = 0
-four = 0
-five = 0
-six = 0
-std= 0
-errorcnt = 0
-last_number = 0
-
-longest = [0] * 6
-row = [0] * 6
-
+# Step Plus und Minus werden zurzeit nicht benutzt, aber man weiß ja nie ¯\_(ツ)_/¯
 def step_plus():
     GPIO.output(17, GPIO.LOW)
     GPIO.output(4, GPIO.HIGH)
@@ -62,7 +58,6 @@ def step_plus():
     GPIO.output(4, GPIO.LOW)
     time.sleep(global_steptime)
     GPIO.output(17, GPIO.LOW)
-    print('step')
 
 
 def step_minus():
@@ -72,15 +67,12 @@ def step_minus():
     GPIO.output(4, GPIO.LOW)
     time.sleep(global_steptime)
     GPIO.output(17, GPIO.LOW)
-    print('step')
 
 
 def send_email(numbers):
-
     server = smtplib.SMTP('mail.gmx.net', 587)
     server.starttls()
     server.login('python-email@gmx.de', 'bojack123.')
-
 
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
@@ -95,7 +87,6 @@ def send_email(numbers):
 
 
 def logging(numbers):
-
     longest_numbers = numbers[9]
 
     file = open('log', 'w')
@@ -116,11 +107,13 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-    if not ret:
+    if not ret:  # Wenn keine Kamera gefunden wurde, Alternativbild benutzen
         grey = cv2.imread('dummy_image.png', 0)
-        # grey = cv2.imread('INPUT.png', 0)
-        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    else:
+        #grey = cv2.imread('input_image.png', 0)
+        cv2.putText(grey, 'NO CAMERA', (10, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        pos_img = np.zeros((10, 300, 1), np.uint8)
+
+    else:  # Bildausschnitte von Würfel und Positionserkennung
         y = 110
         h = 300
 
@@ -135,38 +128,50 @@ def get_images():
 
         x = 200
         w = 300
-        
-        pos_img = frame[y:y + h, x:x + w]
+
+        pos_img = real_image[y:y + h, x:x + w]
         pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-        ret, pos_img = cv2.threshold(pos_img, 240, 255,cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
+        ret, pos_img = cv2.threshold(pos_img, 240, 255, cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
 
-    return grey, pos_img    
+    return grey, pos_img
 
 
-def img_processing(image_input):
+def hough_detector(input_image):
+    # cv2.imshow('hough_input', input_image)
+    img = cv2.medianBlur(input_image, 5)  # Bild gätten mit Gauß
+    cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=230, param2=10, minRadius=10,
+                               maxRadius=0)  # param1: Schwellenwert, param2: muss man ausprobieren
+
+    h_number = 0
+
+    try:  # Kreise zählen und markieren
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            # draw the outer circle
+            cv2.circle(cimg, (i[0], i[1]), i[2], (0, 255, 0), 2)
+            # draw the center of the circle
+            # cv2.circle(cimg, (i[0], i[1]), 3, (0, 255, 50), 4)
+            h_number += 1
+    except:
+        print('HOUGH DETECTOR ERROR, NO CIRCLES FOUND')
+
+    cv2.putText(cimg, str(h_number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
+    cv2.imshow('hough detector - Press Q to exit', cimg)
+
+    return h_number
+
+
+def img_processing(image_input):  # Bild vorbereitung
     # input_frame = cv2.cvtColor(image_input, cv2.COLOR_BGR2GRAY) #Kamerabild in Graustufen umwandeln
 
-    ret, binary_image = cv2.threshold(image_input, 220, 255,
+    ret, binary_image = cv2.threshold(image_input, 230, 255,
                                       cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
 
-    if darknumbers:
-
-        w = binary_image.shape[1]  # y
-        h = binary_image.shape[0]  # x
-
-        mask = np.zeros((h + 2, w + 2), np.uint8)
-
-        cv2.floodFill(binary_image, mask, (0, 0), 255);
-        cv2.floodFill(binary_image, mask, (0, 200), 255)
-
-        kernel_rect = np.ones((5, 5), np.uint8)  # quadratische Maske erzeugen
-
-        clean_eyes = cv2.erode(binary_image, kernel_rect, iterations=1)  # zweimal Erosion anwenden
-
-    else:
+    if not darknumbers:
         binary_image = cv2.bitwise_not(binary_image)
 
-        clean_eyes = binary_image
+    # cv2.imshow('binary', binary_image)
 
     kernel_round = np.array([[0, 0, 0, 1, 1, 1, 0, 0, 0],
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -178,149 +183,167 @@ def img_processing(image_input):
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(clean_eyes, kernel_round, iterations=4)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=4)  # Dilatation anwenden
 
     erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
     return erode
 
 
-def counting(image):
-    global rollnumber
-    global one
-    global two
-    global three
-    global four
-    global five
-    global six
-    global errorcnt
-    global last_number
+def counting(image, all_numbers):
+    one = all_numbers[0]
+    two = all_numbers[1]
+    three = all_numbers[2]
+    four = all_numbers[3]
+    five = all_numbers[4]
+    six = all_numbers[5]
+    errorcnt = all_numbers[6]
+    rollnumber = all_numbers[7]
 
-    global longest
-    global row
+    longest = all_numbers[9]
+    row = all_numbers[10]
+    last_number = all_numbers[11]
 
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
-    img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0, 0, 255),
-                                           cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    img_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-    number = 0
+    blob_number = 0
 
     for i in keypoints[0:]:
-        number = number + 1
+        blob_number = blob_number + 1
 
     rollnumber += 1
-    print('DETECTED: ', number)
-    cv2.putText(img_with_keypoints, str(number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-    if number == 1:  
-        one += 1
-        if last_number == number:
-            row[0] += 1
+    hough_number = hough_detector(image)
+
+    if blob_number == hough_number:
+        number = blob_number
+        print('DETECTED: ', number)
+        cv2.putText(img_with_keypoints, str(number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
+                    cv2.LINE_AA)
+
+        if number == 1:
+            one += 1
+            if last_number == number:
+                row[0] += 1
+            else:
+                row[0] = 1
+        elif number == 2:
+            two += 1
+            if last_number == number:
+                row[1] += 1
+            else:
+                row[1] = 1
+        elif number == 3:
+            three += 1
+            if last_number == number:
+                row[2] += 1
+            else:
+                row[2] = 1
+        elif number == 4:
+            four += 1
+            if last_number == number:
+                row[3] += 1
+            else:
+                row[3] = 1
+        elif number == 5:
+            five += 1
+            if last_number == number:
+                row[4] += 1
+            else:
+                row[4] = 1
+        elif number == 6:
+            six += 1
+            if last_number == number:
+                row[5] += 1
+            else:
+                row[5] = 1
         else:
-            row[0] = 1
-    elif number == 2: 
-        two += 1
-        if last_number == number:
-            row[1] += 1
-        else:
-            row[1] = 1
-    elif number == 3: 
-        three += 1
-        if last_number == number:
-            row[2] += 1
-        else:
-            row[2] = 1
-    elif number == 4:
-        four += 1
-        if last_number == number:
-            row[3] += 1
-        else:
-            row[3] = 1
-    elif number == 5: 
-        five += 1
-        if last_number == number:
-            row[4] += 1
-        else:
-            row[4] = 1
-    elif number == 6:
-        six += 1
-        if last_number == number:
-            row[5] += 1
-        else:
-            row[5] = 1
+            errorcnt = errorcnt + 1
+            cv2.imwrite('errors/' + str(errorcnt) + ' error.png', image)
+
+        if row[0] > longest[0]:
+            longest[0] = row[0]
+        if row[1] > longest[1]:
+            longest[1] = row[1]
+        if row[2] > longest[2]:
+            longest[2] = row[2]
+        if row[3] > longest[3]:
+            longest[3] = row[3]
+        if row[4] > longest[4]:
+            longest[4] = row[4]
+        if row[5] > longest[5]:
+            longest[5] = row[5]
+
+        last_number = number
     else:
+        print('NOT MATCHING FILTERS')
         errorcnt = errorcnt + 1
-        cv2.imwrite('errors/' + str(errorcnt) + ' error.png', image)
-
-    if row[0] > longest[0]:
-        longest[0] = row[0]
-    if row[1] > longest[1]:
-        longest[1] = row[1]
-    if row[2] > longest[2]:
-        longest[2] = row[2]
-    if row[3] > longest[3]:
-        longest[3] = row[3]
-    if row[4] > longest[4]:
-        longest[4] = row[4]
-    if row[5] > longest[5]:
-        longest[5] = row[5]
-
-    last_number = number
+        cv2.imwrite('errors/' + str(errorcnt) + ' matching error.png', image)
 
     rolled = [one, two, three, four, five, six]
     std_dev = np.std(rolled)
 
-    all_numbers = [one, two, three, four, five, six, errorcnt, rollnumber, std_dev, longest]
+    all_numbers[0] = one
+    all_numbers[1] = two
+    all_numbers[2] = three
+    all_numbers[3] = four
+    all_numbers[4] = five
+    all_numbers[5] = six
+    all_numbers[6] = errorcnt
+    all_numbers[7] = rollnumber
+    all_numbers[8] = std_dev
+    all_numbers[9] = longest
+    all_numbers[10] = row
+    all_numbers[11] = last_number
 
     return all_numbers, img_with_keypoints
 
 
 while True:
-    for i in range(3200):
-                
-        if (i > 3100):
-            steptime = steptime + global_steptime * 0.1
-        else:
-            steptime = global_steptime    
+    if gpios:
+        for i in range(3200):
 
-        GPIO.output(4, GPIO.HIGH)
-        time.sleep(steptime)
-        GPIO.output(4, GPIO.LOW)
-        time.sleep(steptime)
-    
-    time.sleep(0.3)    
+            if i > 3100:  # die letzten Schritte abbremsen
+                steptime = steptime + global_steptime * 0.1
+            else:
+                steptime = global_steptime
+
+            GPIO.output(4, GPIO.HIGH)
+            time.sleep(steptime)
+            GPIO.output(4, GPIO.LOW)
+            time.sleep(steptime)
+
+    time.sleep(0.3)  # Kurze Pause, damit Würfel ruhig liegen kann
     position_correct = False
-  
-    real_image,pos_img = get_images()
-  
-    while position_correct is not True:
-        
-        real_image,pos_img = get_images()
-        
-        M = cv2.moments(pos_img)
 
-        #print(M)
+    real_image, pos_img = get_images()  # Aufnahme machen
+
+    while position_correct is not True and gpios is True:
+
+        M = cv2.moments(pos_img)  # Schwerpunkt berechnen
+
+        # print(M)
 
         if M["m00"] != 0:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
         else:
             cX, cY = 0, 0
-            
-    # put text and highlight the center
+
+        # put text and highlight the center
         cv2.circle(pos_img, (cX, cY), 4, (0, 0, 0), -1)
-        #cv2.putText(frame, "positioning", (cX - 25, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+        # cv2.putText(frame, "positioning", (cX - 25, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
         # Display the resulting frame
-        
-        
-        if(cX < 135):
+
+        if cX < 135:
             GPIO.output(17, GPIO.HIGH)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
             GPIO.output(4, GPIO.LOW)
-            time.sleep(global_steptime)      
-        elif(cX >165):
+            time.sleep(global_steptime)
+        elif cX > 165:
             GPIO.output(17, GPIO.LOW)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
@@ -328,22 +351,22 @@ while True:
             time.sleep(global_steptime)
         else:
             position_correct = True
-            print('correct position:')            
+            print('correct position:')
         print("X:", cX, "Y:", cY)
 
-    cv2.imshow('newpos',pos_img)
-
-    cv2.imshow('Input', real_image)
+    # cv2.imshow('newpos',pos_img)
+    cv2.imshow('Input - Press Q to exit', real_image)
     processed_img = img_processing(real_image)
-    numbers, keypoint_img = counting(processed_img)
-    cv2.imshow('Output', keypoint_img)
-    
-    logging(numbers)
+    numbers, blob_img = counting(processed_img, all_numbers)
+    cv2.imshow('blob detector - Press Q to exit', blob_img)
 
-    if write_email is True and (numbers[7]%email_log_number) == 0:
+    if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
+        logging(numbers)
+
+    if write_email is True and (numbers[7] % email_log_number) == 0:
         send_email(numbers)
-    
-    print('=================')    
+
+    print('=================')
     print('One: ', numbers[0])
     print('Two: ', numbers[1])
     print('Three: ', numbers[2])
@@ -353,9 +376,10 @@ while True:
     print('Errors: ', numbers[6])
     print('All rolls: ', numbers[7])
     print('Deviation: ', numbers[8])
-    print('=================')   
+    print('=================')
 
-    cv2.waitKey(100)
+    if cv2.waitKey(1) & 0xFF == ord('q'):  # Q drücken, zum beenden
+        break
 
 cap.release()
 cv2.destroyAllWindows()
