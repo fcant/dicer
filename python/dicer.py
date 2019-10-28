@@ -117,22 +117,20 @@ def get_images():
         y = 110
         h = 300
 
-        x = 200
+        x = 220
         w = 300
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+        cv2.imshow('input', grey)
 
-        y = 60
+        y = 90
         h = 10
 
-        x = 200
-        w = 300
-
-        pos_img = real_image[y:y + h, x:x + w]
+        pos_img = frame[y:y + h, x:x + w]
         pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-        ret, pos_img = cv2.threshold(pos_img, 240, 255, cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
-
+        ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
+        cv2.imshow('pos', pos_img)
     return grey, pos_img
 
 
@@ -315,12 +313,15 @@ while True:
             GPIO.output(4, GPIO.LOW)
             time.sleep(steptime)
 
-    time.sleep(0.3)  # Kurze Pause, damit Würfel ruhig liegen kann
+    time.sleep(0.5)  # Kurze Pause, damit Würfel ruhig liegen kann
     position_correct = False
 
-    real_image, pos_img = get_images()  # Aufnahme machen
+    #real_image, pos_img = get_images()  # Aufnahme machen
 
     while position_correct is not True and gpios is True:
+
+        real_image, pos_img = get_images()
+        #cv2.imshow('pos', pos_img)
 
         M = cv2.moments(pos_img)  # Schwerpunkt berechnen
 
@@ -353,8 +354,8 @@ while True:
             position_correct = True
             print('correct position:')
         print("X:", cX, "Y:", cY)
-
-    # cv2.imshow('newpos',pos_img)
+        cv2.imshow('newpos',pos_img)
+    
     cv2.imshow('Input - Press Q to exit', real_image)
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
@@ -378,7 +379,8 @@ while True:
     print('Deviation: ', numbers[8])
     print('=================')
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):  # Q drücken, zum beenden
+    #cv2.waitKey(100)
+    if cv2.waitKey(300) & 0xFF == ord('q'):  # Q drücken, zum beenden
         break
 
 cap.release()
