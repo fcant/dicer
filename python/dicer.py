@@ -114,11 +114,12 @@ def get_images():
         pos_img = np.zeros((10, 300, 1), np.uint8)
 
     else:  # Bildausschnitte von Würfel und Positionserkennung
-        y = 110
-        h = 300
 
-        x = 220
-        w = 300
+        y = 150
+        h = 230
+
+        x = 200
+        w = 230
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
@@ -138,8 +139,8 @@ def hough_detector(input_image):
     # cv2.imshow('hough_input', input_image)
     img = cv2.medianBlur(input_image, 5)  # Bild gätten mit Gauß
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=230, param2=10, minRadius=10,
-                               maxRadius=0)  # param1: Schwellenwert, param2: muss man ausprobieren
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=220, param2=10, minRadius=10,
+                               maxRadius=30)  # param1: Schwellenwert, param2: muss man ausprobieren
 
     h_number = 0
 
@@ -181,7 +182,7 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=4)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=3)  # Dilatation anwenden
 
     erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
@@ -313,8 +314,8 @@ while True:
             GPIO.output(4, GPIO.LOW)
             time.sleep(steptime)
 
-    time.sleep(0.5)  # Kurze Pause, damit Würfel ruhig liegen kann
-    position_correct = False
+        time.sleep(0.8)  # Kurze Pause, damit Würfel ruhig liegen kann
+        position_correct = False
 
     #real_image, pos_img = get_images()  # Aufnahme machen
 
@@ -338,13 +339,13 @@ while True:
         # cv2.putText(frame, "positioning", (cX - 25, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
         # Display the resulting frame
 
-        if cX < 135:
+        if cX < 100:
             GPIO.output(17, GPIO.HIGH)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
             GPIO.output(4, GPIO.LOW)
             time.sleep(global_steptime)
-        elif cX > 165:
+        elif cX > 120:
             GPIO.output(17, GPIO.LOW)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
