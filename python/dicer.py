@@ -1,5 +1,5 @@
 # import threading
-# import datetime
+
 # import time
 # from tkinter import *
 # from PIL import ImageTk, Image
@@ -7,6 +7,7 @@
 # from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # from matplotlib.figure import Figure
 
+#import datetime
 import numpy as np
 import cv2
 import time
@@ -15,6 +16,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 gpios = True
+
+
 
 try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
     import RPi.GPIO as GPIO
@@ -30,7 +33,7 @@ except ImportError:
 darknumbers = False  # Dunkle Würfelaugen
 
 write_email = True  # Email mit Messdaten versenden?
-email_log_number = 10000  # Nach wie vielen Würfen soll eine Email geschrieben werden
+email_log_number = 2000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
@@ -68,8 +71,15 @@ def step_minus():
     time.sleep(global_steptime)
     GPIO.output(17, GPIO.LOW)
 
+def clock(now):
+    time_seconds = int((time.time() - now))
+    t_hr = int(time_seconds / 3600)
+    t_min = int(time_seconds / 60) - (t_hr * 60)
+    t_sec = int(time_seconds) - (t_min * 60)
+    showTime = str(t_hr).zfill(3) + ':' + str(t_min).zfill(2) + ':' + str(t_sec).zfill(2)
+    return showTime
 
-def send_email(numbers):
+def send_email(numbers, ctime):
     server = smtplib.SMTP('mail.gmx.net', 587)
     server.starttls()
     server.login('python-email@gmx.de', 'bojack123.')
@@ -80,13 +90,13 @@ def send_email(numbers):
     msg['Subject'] = 'Dicer update'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(numbers[6]) + ' Std: ' + str(
-        numbers[7])
+        numbers[7]) + '\n' + str(ctime)
     msg.attach(MIMEText(message))
 
     server.send_message(msg)
 
 
-def logging(numbers):
+def logging(numbers, ctime):
     longest_numbers = numbers[9]
 
     file = open('log', 'w')
@@ -99,6 +109,7 @@ def logging(numbers):
     file.write('Fehler: ' + str(numbers[6]) + '\n')
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.write('Standardabw: ' + str(numbers[8]) + '\n')
+    file.write(str(ctime) + '\n')
 
     file.close()
 
@@ -110,20 +121,21 @@ def get_images():
     if not ret:  # Wenn keine Kamera gefunden wurde, Alternativbild benutzen
         grey = cv2.imread('dummy_image.png', 0)
         #grey = cv2.imread('input_image.png', 0)
-        cv2.putText(grey, 'NO CAMERA', (10, 280), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         pos_img = np.zeros((10, 300, 1), np.uint8)
 
     else:  # Bildausschnitte von Würfel und Positionserkennung
 
         y = 150
-        h = 230
+        h = 240
 
-        x = 200
-        w = 230
+        x = 220
+        w = 240
+    
 
         real_image = frame[y:y + h, x:x + w]
         grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
-        cv2.imshow('input', grey)
+        #cv2.imshow('input', grey)
 
         y = 90
         h = 10
@@ -131,7 +143,7 @@ def get_images():
         pos_img = frame[y:y + h, x:x + w]
         pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
         ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
-        cv2.imshow('pos', pos_img)
+        #cv2.imshow('pos', pos_img)
     return grey, pos_img
 
 
@@ -155,7 +167,7 @@ def hough_detector(input_image):
     except:
         print('HOUGH DETECTOR ERROR, NO CIRCLES FOUND')
 
-    cv2.putText(cimg, str(h_number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
+    cv2.putText(cimg, str(h_number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
     cv2.imshow('hough detector - Press Q to exit', cimg)
 
     return h_number
@@ -219,7 +231,7 @@ def counting(image, all_numbers):
     if blob_number == hough_number:
         number = blob_number
         print('DETECTED: ', number)
-        cv2.putText(img_with_keypoints, str(number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
+        cv2.putText(img_with_keypoints, str(number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                     cv2.LINE_AA)
 
         if number == 1:
@@ -299,6 +311,7 @@ def counting(image, all_numbers):
 
     return all_numbers, img_with_keypoints
 
+now = time.time()
 
 while True:
     if gpios:
@@ -314,7 +327,7 @@ while True:
             GPIO.output(4, GPIO.LOW)
             time.sleep(steptime)
 
-        time.sleep(0.8)  # Kurze Pause, damit Würfel ruhig liegen kann
+        time.sleep(1)  # Kurze Pause, damit Würfel ruhig liegen kann
         position_correct = False
 
     #real_image, pos_img = get_images()  # Aufnahme machen
@@ -326,7 +339,7 @@ while True:
 
         M = cv2.moments(pos_img)  # Schwerpunkt berechnen
 
-        # print(M)
+        #print(M)
 
         if M["m00"] != 0:
             cX = int(M["m10"] / M["m00"])
@@ -345,6 +358,7 @@ while True:
             time.sleep(global_steptime)
             GPIO.output(4, GPIO.LOW)
             time.sleep(global_steptime)
+            GPIO.output(17, GPIO.LOW)
         elif cX > 120:
             GPIO.output(17, GPIO.LOW)
             GPIO.output(4, GPIO.HIGH)
@@ -357,18 +371,22 @@ while True:
         print("X:", cX, "Y:", cY)
         cv2.imshow('newpos',pos_img)
     
-    cv2.imshow('Input - Press Q to exit', real_image)
+
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
     cv2.imshow('blob detector - Press Q to exit', blob_img)
+    cv2.imshow('Input - Press Q to exit', real_image)
+
+    ctime = clock(now)
 
     if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
-        logging(numbers)
+        logging(numbers, ctime)
 
     if write_email is True and (numbers[7] % email_log_number) == 0:
-        send_email(numbers)
+        send_email(numbers, ctime)
 
     print('=================')
+    print(ctime)
     print('One: ', numbers[0])
     print('Two: ', numbers[1])
     print('Three: ', numbers[2])
@@ -379,6 +397,7 @@ while True:
     print('All rolls: ', numbers[7])
     print('Deviation: ', numbers[8])
     print('=================')
+
 
     #cv2.waitKey(100)
     if cv2.waitKey(300) & 0xFF == ord('q'):  # Q drücken, zum beenden

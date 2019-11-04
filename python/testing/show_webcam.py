@@ -12,10 +12,10 @@ while(True):
     ret, frame = cap.read()
 
     y = 150
-    h = 230
+    h = 240
 
-    x = 200
-    w = 230
+    x = 220
+    w = 240
 
     grey = frame
     
@@ -33,8 +33,18 @@ while(True):
     cv2.imshow('pos',pos_img)
     cv2.imshow('output',grey)
 
+    M = cv2.moments(pos_img)  # Schwerpunkt berechnen
+
+    
 
 
+    if M["m00"] != 0:
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+    else:
+        cX, cY = 0, 0
+
+    print("X:", cX, "Y:", cY)
     ret, binary_image = cv2.threshold(grey, 230, 255,
                                       cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
 
@@ -76,7 +86,7 @@ while(True):
     except:
         print('HOUGH DETECTOR ERROR, NO CIRCLES FOUND')
 
-    cv2.putText(cimg, str(h_number), (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
+    cv2.putText(cimg, str(h_number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
     cv2.imshow('hough detector - Press Q to exit', cimg)
 
 
