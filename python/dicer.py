@@ -39,17 +39,18 @@ dicer_ready = False
 
 try:
     cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+    dicer_ready = True
 except cv2.error as e:
     print(e)
     pass
 
-if not cap.isOpened():
-    dicer_ready = False
-    grey = cv2.imread('dummy_image.png', 0)
-    cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    cv2.imshow('Doge says:', grey)
-else:
-    dicer_ready = True
+#if not cap.isOpened():
+#    dicer_ready = False
+#    grey = cv2.imread('dummy_image.png', 0)
+#    cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+#    cv2.imshow('Doge says:', grey)
+#else:
+#    dicer_ready = True
 
 global_steptime = 0.00015  # Abstand zwischen den Schritten
 
@@ -132,26 +133,31 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-      # Bildausschnitte von Würfel und Positionserkennung
-    y = 160
-    h = 240
+    if ret is not True:
+        grey = cv2.imread('dummy_image.png', 0)
+        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        pos_img = np.zeros(shape=[200, 200, 3], dtype=np.uint8)
+    else:
+        # Bildausschnitte von Würfel und Positionserkennung
+        y = 160
+        h = 240
 
-    x = 220
-    w = 240
+        x = 220
+        w = 240
 
 
-    real_image = frame[y:y + h, x:x + w]
-    grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
-    #cv2.imshow('input', grey)
+        real_image = frame[y:y + h, x:x + w]
+        grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+        #cv2.imshow('input', grey)
 
-    y = 115
-    h = 20
+        y = 115
+        h = 20
 
-    pos_img = frame[y:y + h, x:x + w]
-    pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-    ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
-    #cv2.imshow('pos', pos_img)
-    cv2.imwrite('grey.png',grey)
+        pos_img = frame[y:y + h, x:x + w]
+        pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
+        ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
+        cv2.imshow('pos', pos_img)
+       #cv2.imwrite('grey.png',grey)
     return grey, pos_img
 
 
@@ -336,9 +342,9 @@ while dicer_ready is True:
             time.sleep(steptime)
 
         time.sleep(1)  # Kurze Pause, damit Würfel ruhig liegen kann
-        position_correct = False
+    position_correct = False
 
-    #real_image, pos_img = get_images()  # Aufnahme machen
+    real_image, pos_img = get_images()  # Aufnahme machen
 
     while position_correct is not True and gpios is True:
 
@@ -378,7 +384,6 @@ while dicer_ready is True:
             print('correct position:')
         print("X:", cX, "Y:", cY)
         cv2.imshow('newpos',pos_img)
-    
 
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
