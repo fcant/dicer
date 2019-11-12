@@ -35,7 +35,21 @@ darknumbers = False  # Dunkle Würfelaugen
 write_email = True  # Email mit Messdaten versenden?
 email_log_number = 2000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
-cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+dicer_ready = False
+
+try:
+    cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+except cv2.error as e:
+    print(e)
+    pass
+
+if not cap.isOpened():
+    dicer_ready = False
+    grey = cv2.imread('dummy_image.png', 0)
+    cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.imshow('Doge says:', grey)
+else:
+    dicer_ready = True
 
 global_steptime = 0.00015  # Abstand zwischen den Schritten
 
@@ -118,32 +132,26 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-    if not ret:  # Wenn keine Kamera gefunden wurde, Alternativbild benutzen
-        grey = cv2.imread('dummy_image.png', 0)
-        #grey = cv2.imread('input_image.png', 0)
-        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        pos_img = np.zeros((10, 300, 1), np.uint8)
+      # Bildausschnitte von Würfel und Positionserkennung
+    y = 160
+    h = 240
 
-    else:  # Bildausschnitte von Würfel und Positionserkennung
+    x = 220
+    w = 240
 
-        y = 150
-        h = 240
 
-        x = 220
-        w = 240
-    
+    real_image = frame[y:y + h, x:x + w]
+    grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+    #cv2.imshow('input', grey)
 
-        real_image = frame[y:y + h, x:x + w]
-        grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
-        #cv2.imshow('input', grey)
+    y = 115
+    h = 20
 
-        y = 90
-        h = 10
-
-        pos_img = frame[y:y + h, x:x + w]
-        pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-        ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
-        #cv2.imshow('pos', pos_img)
+    pos_img = frame[y:y + h, x:x + w]
+    pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
+    ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
+    #cv2.imshow('pos', pos_img)
+    cv2.imwrite('grey.png',grey)
     return grey, pos_img
 
 
@@ -313,7 +321,7 @@ def counting(image, all_numbers):
 
 now = time.time()
 
-while True:
+while dicer_ready is True:
     if gpios:
         for i in range(3200):
 
@@ -352,14 +360,14 @@ while True:
         # cv2.putText(frame, "positioning", (cX - 25, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
         # Display the resulting frame
 
-        if cX < 100:
+        if cX < 115:
             GPIO.output(17, GPIO.HIGH)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)
             GPIO.output(4, GPIO.LOW)
             time.sleep(global_steptime)
             GPIO.output(17, GPIO.LOW)
-        elif cX > 120:
+        elif cX > 135:
             GPIO.output(17, GPIO.LOW)
             GPIO.output(4, GPIO.HIGH)
             time.sleep(global_steptime)

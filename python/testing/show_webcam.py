@@ -11,7 +11,11 @@ while(True):
 
     ret, frame = cap.read()
 
-    y = 150
+
+    cv2.imshow('frame',frame)
+
+
+    y = 160
     h = 240
 
     x = 220
@@ -24,8 +28,8 @@ while(True):
     
     
 
-    y = 90
-    h = 10
+    y = 115
+    h = 20
 
     pos_img = frame[y:y + h, x:x + w]
     pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
