@@ -33,16 +33,28 @@ except ImportError:
 darknumbers = False  # Dunkle Würfelaugen
 
 write_email = True  # Email mit Messdaten versenden?
-email_log_number = 2000  # Nach wie vielen Würfen soll eine Email geschrieben werden
+email_log_number = 1500  # Nach wie vielen Würfen soll eine Email geschrieben werden
+
+error_logging = True
+
+
 
 dicer_ready = False
 
-try:
-    cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+
+ret, frame = cap.read() # Test, ob Kamera funktionert
+
+if ret is not True: #Wenn Kamera nicht geht, Dummy Image laden
+        dicer_ready = False
+        grey = cv2.imread('dummy_image.png', 0)
+        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        pos_img = np.zeros(shape=[100, 100, 1], dtype=np.uint8)
+        cv2.imshow('Press any key to exit', grey)
+        cv2.waitKey()  # Taste drücken, zum beenden
+else:
     dicer_ready = True
-except cv2.error as e:
-    print(e)
-    pass
+
 
 #if not cap.isOpened():
 #    dicer_ready = False
@@ -102,9 +114,10 @@ def send_email(numbers, ctime):
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
-    msg['Subject'] = 'Dicer update'
+    msg['Cc'] = 'anton.kraus@th-koeln.de'
+    msg['Subject'] = 'Dicer - Würfel mit Kugel auf Seite 2'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
-        numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(numbers[6]) + ' Std: ' + str(
+        numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + str(ctime)
     msg.attach(MIMEText(message))
 
@@ -133,31 +146,27 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-    if ret is not True:
-        grey = cv2.imread('dummy_image.png', 0)
-        cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        pos_img = np.zeros(shape=[200, 200, 3], dtype=np.uint8)
-    else:
-        # Bildausschnitte von Würfel und Positionserkennung
-        y = 160
-        h = 240
 
-        x = 220
-        w = 240
+    # Bildausschnitte von Würfel und Positionserkennung
+    y = 160
+    h = 240
+
+    x = 220
+    w = 240
 
 
-        real_image = frame[y:y + h, x:x + w]
-        grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
-        #cv2.imshow('input', grey)
+    real_image = frame[y:y + h, x:x + w]
+    grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+    #cv2.imshow('input', grey)
 
-        y = 115
-        h = 20
+    y = 115
+    h = 20
 
-        pos_img = frame[y:y + h, x:x + w]
-        pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-        ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
-        cv2.imshow('pos', pos_img)
-       #cv2.imwrite('grey.png',grey)
+    pos_img = frame[y:y + h, x:x + w]
+    pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
+    ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
+    #cv2.imshow('pos', pos_img)
+   #cv2.imwrite('grey.png',grey)
     return grey, pos_img
 
 
@@ -182,7 +191,7 @@ def hough_detector(input_image):
         print('HOUGH DETECTOR ERROR, NO CIRCLES FOUND')
 
     cv2.putText(cimg, str(h_number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
-    cv2.imshow('hough detector - Press Q to exit', cimg)
+    cv2.imshow('hough detector', cimg)
 
     return h_number
 
@@ -286,7 +295,8 @@ def counting(image, all_numbers):
                 row[5] = 1
         else:
             errorcnt = errorcnt + 1
-            cv2.imwrite('errors/' + str(errorcnt) + ' error.png', image)
+            if error_logging is True:
+                cv2.imwrite('errors/' + str(errorcnt) + 'number_error.png', image)
 
         if row[0] > longest[0]:
             longest[0] = row[0]
@@ -305,7 +315,8 @@ def counting(image, all_numbers):
     else:
         print('NOT MATCHING FILTERS')
         errorcnt = errorcnt + 1
-        cv2.imwrite('errors/' + str(errorcnt) + ' matching error.png', image)
+        if error_logging is True:
+            cv2.imwrite('errors/' + str(errorcnt) + ' matching_error.png', image)
 
     rolled = [one, two, three, four, five, six]
     std_dev = np.std(rolled)
@@ -341,7 +352,7 @@ while dicer_ready is True:
             GPIO.output(4, GPIO.LOW)
             time.sleep(steptime)
 
-        time.sleep(1)  # Kurze Pause, damit Würfel ruhig liegen kann
+        time.sleep(0.8)  # Kurze Pause, damit Würfel ruhig liegen kann
     position_correct = False
 
     real_image, pos_img = get_images()  # Aufnahme machen
@@ -350,6 +361,7 @@ while dicer_ready is True:
 
         real_image, pos_img = get_images()
         #cv2.imshow('pos', pos_img)
+    
 
         M = cv2.moments(pos_img)  # Schwerpunkt berechnen
 
@@ -381,14 +393,14 @@ while dicer_ready is True:
             time.sleep(global_steptime)
         else:
             position_correct = True
-            print('correct position:')
-        print("X:", cX, "Y:", cY)
-        cv2.imshow('newpos',pos_img)
+            #print('correct position:')
+        #print("X:", cX, "Y:", cY)
+        #cv2.imshow('newpos',pos_img)
 
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
-    cv2.imshow('blob detector - Press Q to exit', blob_img)
-    cv2.imshow('Input - Press Q to exit', real_image)
+    cv2.imshow('blob detector', blob_img)
+    cv2.imshow('Press Q to exit', real_image)
 
     ctime = clock(now)
 
