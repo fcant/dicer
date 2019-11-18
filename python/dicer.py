@@ -395,7 +395,7 @@ while dicer_ready is True:
             position_correct = True
             #print('correct position:')
         #print("X:", cX, "Y:", cY)
-        #cv2.imshow('newpos',pos_img)
+        cv2.imwrite('newpos.png',pos_img)
 
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
