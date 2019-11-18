@@ -146,7 +146,7 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-
+    cv2.imwrite('frame.png',frame)
     # Bildausschnitte von Würfel und Positionserkennung
     y = 160
     h = 240
@@ -158,12 +158,13 @@ def get_images():
     real_image = frame[y:y + h, x:x + w]
     grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('input', grey)
-
+    cv2.imwrite('grey.png',grey)
     y = 115
     h = 20
 
     pos_img = frame[y:y + h, x:x + w]
     pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite('pos_raw.png',pos_img)
     ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
     #cv2.imshow('pos', pos_img)
    #cv2.imwrite('grey.png',grey)
