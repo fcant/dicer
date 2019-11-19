@@ -1,10 +1,10 @@
-Einz:485;5
-Zwei:685;5
-Drei: 505;3
-Vier: 535;4
-Fuenf: 419;3
-Sechs: 518;4
-Fehler: 3
-Gesamt: 3150
-Standardabw: 80.6055209027
-003:26:10835
+Einz:2;1
+Zwei:1;1
+Drei: 1;1
+Vier: 0;0
+Fuenf: 2;1
+Sechs: 4;1
+Fehler: 0
+Gesamt: 10
+Standardabw: 1.24721912892
+Zeit0:00

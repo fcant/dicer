@@ -17,31 +17,32 @@ from email.mime.multipart import MIMEMultipart
 
 gpios = True
 
-
-
 try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
     import RPi.GPIO as GPIO
-
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(17, GPIO.OUT)
     GPIO.setup(4, GPIO.OUT)
 except ImportError:
     gpios = False
-    print('Error - no GPIOS found')
+    print('WARNING - no GPIOS found')
+
+###########################################################################################################################
 
 darknumbers = False  # Dunkle Würfelaugen
 
-write_email = True  # Email mit Messdaten versenden?
-email_log_number = 1500  # Nach wie vielen Würfen soll eine Email geschrieben werden
+send_email = True  # Email mit Messdaten versenden?
+email_log_number = 10  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 error_logging = True
 
 
 
-dicer_ready = False
-
 cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
+
+###########################################################################################################################
+
+dicer_ready = False
 
 ret, frame = cap.read() # Test, ob Kamera funktionert
 
@@ -54,15 +55,6 @@ if ret is not True: #Wenn Kamera nicht geht, Dummy Image laden
         cv2.waitKey()  # Taste drücken, zum beenden
 else:
     dicer_ready = True
-
-
-#if not cap.isOpened():
-#    dicer_ready = False
-#    grey = cv2.imread('dummy_image.png', 0)
-#    cv2.putText(grey, 'NO CAMERA', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-#    cv2.imshow('Doge says:', grey)
-#else:
-#    dicer_ready = True
 
 global_steptime = 0.00015  # Abstand zwischen den Schritten
 
@@ -98,15 +90,18 @@ def step_minus():
     time.sleep(global_steptime)
     GPIO.output(17, GPIO.LOW)
 
+
 def clock(now):
     time_seconds = int((time.time() - now))
     t_hr = int(time_seconds / 3600)
     t_min = int(time_seconds / 60) - (t_hr * 60)
     t_sec = int(time_seconds) - (t_min * 60)
-    showTime = str(t_hr).zfill(3) + ':' + str(t_min).zfill(2) + ':' + str(t_sec).zfill(2)
+    showTime = str(t_hr) + ':' + str(t_min).zfill(2)
+    print(showTime)
     return showTime
 
-def send_email(numbers, ctime):
+
+def write_email(numbers, ctime):
     server = smtplib.SMTP('mail.gmx.net', 587)
     server.starttls()
     server.login('python-email@gmx.de', 'bojack123.')
@@ -114,8 +109,8 @@ def send_email(numbers, ctime):
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
-    msg['Cc'] = 'anton.kraus@th-koeln.de'
-    msg['Subject'] = 'Dicer - Würfel mit Kugel auf Seite 2'
+    #msg['Cc'] = 'anton.kraus@th-koeln.de'
+    msg['Subject'] = 'Dicer - Würfel Test'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + str(ctime)
@@ -137,7 +132,7 @@ def logging(numbers, ctime):
     file.write('Fehler: ' + str(numbers[6]) + '\n')
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.write('Standardabw: ' + str(numbers[8]) + '\n')
-    file.write(str(ctime) + '\n')
+    file.write('Zeit: ' + str(ctime) + '\n')
 
     file.close()
 
@@ -146,7 +141,7 @@ def get_images():
     for i in range(5):
         ret, frame = cap.read()
 
-    cv2.imwrite('frame.png',frame)
+    #cv2.imwrite('frame.png',frame)
     # Bildausschnitte von Würfel und Positionserkennung
     y = 160
     h = 240
@@ -154,17 +149,16 @@ def get_images():
     x = 220
     w = 240
 
-
     real_image = frame[y:y + h, x:x + w]
     grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('input', grey)
-    cv2.imwrite('grey.png',grey)
+    #cv2.imwrite('grey.png',grey)
     y = 115
     h = 20
 
     pos_img = frame[y:y + h, x:x + w]
     pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite('pos_raw.png',pos_img)
+    #cv2.imwrite('pos_raw.png',pos_img)
     ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
     #cv2.imshow('pos', pos_img)
    #cv2.imwrite('grey.png',grey)
@@ -396,7 +390,7 @@ while dicer_ready is True:
             position_correct = True
             #print('correct position:')
         #print("X:", cX, "Y:", cY)
-        cv2.imwrite('newpos.png',pos_img)
+        #cv2.imwrite('newpos.png',pos_img)
 
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
@@ -408,8 +402,8 @@ while dicer_ready is True:
     if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
         logging(numbers, ctime)
 
-    if write_email is True and (numbers[7] % email_log_number) == 0:
-        send_email(numbers, ctime)
+    if send_email is True and (numbers[7] % email_log_number) == 0:
+        write_email(numbers, ctime)
 
     print('=================')
     print(ctime)
