@@ -32,7 +32,7 @@ except ImportError:
 darknumbers = False  # Dunkle Würfelaugen
 
 send_email = True  # Email mit Messdaten versenden?
-email_log_number = 10  # Nach wie vielen Würfen soll eine Email geschrieben werden
+email_log_number = 2000  # Nach wie vielen Würfen soll eine Email geschrieben werden
 
 error_logging = True
 
@@ -41,6 +41,8 @@ error_logging = True
 cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
 ###########################################################################################################################
+
+print('Starting...')
 
 dicer_ready = False
 
@@ -109,8 +111,8 @@ def write_email(numbers, ctime):
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
-    #msg['Cc'] = 'anton.kraus@th-koeln.de'
-    msg['Subject'] = 'Dicer - Würfel Test'
+    msg['Cc'] = 'anton.kraus@th-koeln.de'
+    msg['Subject'] = 'Dicer - Neuer Würfel'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + str(ctime)
@@ -122,7 +124,7 @@ def write_email(numbers, ctime):
 def logging(numbers, ctime):
     longest_numbers = numbers[9]
 
-    file = open('log', 'w')
+    file = open('log_mittwoch', 'w')
     file.write('Einz:' + str(numbers[0]) + ';' + str(longest_numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + ';' + str(longest_numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + ';' + str(longest_numbers[2]) + '\n')
