@@ -111,8 +111,8 @@ def write_email(numbers, ctime):
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
-    msg['Cc'] = 'anton.kraus@th-koeln.de'
-    msg['Subject'] = 'Dicer - Würfel Tag 4'
+    #msg['Cc'] = 'anton.kraus@th-koeln.de'
+    msg['Subject'] = 'Dicer - plastik'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + str(ctime)
@@ -124,7 +124,7 @@ def write_email(numbers, ctime):
 def logging(numbers, ctime):
     longest_numbers = numbers[9]
 
-    file = open('log_tag4', 'w')
+    file = open('log_plastik', 'w')
     file.write('Einz:' + str(numbers[0]) + ';' + str(longest_numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + ';' + str(longest_numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + ';' + str(longest_numbers[2]) + '\n')
