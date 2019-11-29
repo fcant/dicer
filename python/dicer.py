@@ -23,6 +23,7 @@ try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(17, GPIO.OUT)
     GPIO.setup(4, GPIO.OUT)
+    GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 except ImportError:
     gpios = False
     print('WARNING - no GPIOS found')
@@ -42,7 +43,7 @@ cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras ang
 
 ###########################################################################################################################
 
-print('Starting...')
+print('Setting up...')
 
 dicer_ready = False
 
@@ -57,6 +58,10 @@ if ret is not True: #Wenn Kamera nicht geht, Dummy Image laden
         cv2.waitKey()  # Taste drücken, zum beenden
 else:
     dicer_ready = True
+
+if GPIO.input(18) == 0:
+    print('Temperature relay is offline, stopping')
+    dicer_ready = False
 
 global_steptime = 0.00015  # Abstand zwischen den Schritten
 
@@ -103,16 +108,18 @@ def clock(now):
     return showTime
 
 
-def write_email(numbers, ctime):
+def write_email(numbers, ctime, error):
     server = smtplib.SMTP('mail.gmx.net', 587)
     server.starttls()
     server.login('python-email@gmx.de', 'bojack123.')
-
     msg = MIMEMultipart()
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
-    #msg['Cc'] = 'anton.kraus@th-koeln.de'
-    msg['Subject'] = 'Dicer - plastik'
+    if error:
+        msg['Subject'] = 'Temperaturfehler'
+    else:
+        #msg['Cc'] = 'anton.kraus@th-koeln.de'
+        msg['Subject'] = 'Dicer - plastik seite 2'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + str(ctime)
@@ -124,7 +131,7 @@ def write_email(numbers, ctime):
 def logging(numbers, ctime):
     longest_numbers = numbers[9]
 
-    file = open('log_plastik', 'w')
+    file = open('log_plastik_seite2', 'w')
     file.write('Einz:' + str(numbers[0]) + ';' + str(longest_numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + ';' + str(longest_numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + ';' + str(longest_numbers[2]) + '\n')
@@ -310,6 +317,7 @@ def counting(image, all_numbers):
 
         last_number = number
     else:
+        rollnumber -= 1
         print('NOT MATCHING FILTERS')
         errorcnt = errorcnt + 1
         if error_logging is True:
@@ -334,6 +342,16 @@ def counting(image, all_numbers):
     return all_numbers, img_with_keypoints
 
 now = time.time()
+
+if dicer_ready is True:
+    print('Starting...')
+
+#    if GPIO.input(18) == 0:
+  #      write_email(numbers, ctime,1)
+   #     print('Temperature error')
+   #     break
+
+#INTERRUPPT
 
 while dicer_ready is True:
     if gpios:
@@ -405,7 +423,7 @@ while dicer_ready is True:
         logging(numbers, ctime)
 
     if send_email is True and (numbers[7] % email_log_number) == 0:
-        write_email(numbers, ctime)
+        write_email(numbers, ctime,0)
 
     print('=================')
     print(ctime)
