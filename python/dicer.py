@@ -24,9 +24,11 @@ try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
     GPIO.setup(17, GPIO.OUT)
     GPIO.setup(4, GPIO.OUT)
     GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+    
 except ImportError:
     gpios = False
     print('WARNING - no GPIOS found')
+
 
 ###########################################################################################################################
 
@@ -45,6 +47,7 @@ cap = cv2.VideoCapture(0)  # Bildquelle (Zahl ändern, falls mehrere Kameras ang
 
 print('Setting up...')
 
+interrupted = False
 dicer_ready = False
 
 ret, frame = cap.read() # Test, ob Kamera funktionert
@@ -74,12 +77,19 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
-all_numbers = [0] * 12  # [one, two, three, four, five, six, errorcnt, rollnumber, std_dev, longest, row, last_number]
+all_numbers = [0] * 9  # [one, two, three, four, five, six, errorcnt, rollnumber, std_dev
 
-all_numbers[9] = [0] * 6  # 'longest' und 'row' enthalten jeweils 6 Werte
-all_numbers[10] = [0] * 6
 
-# Step Plus und Minus werden zurzeit nicht benutzt, aber man weiß ja nie ¯\_(ツ)_/¯
+def interr(channel):
+    global gpios
+    global dicer_ready
+    global interrupted
+    gpios = False
+    dicer_ready = False
+    interrupted = True
+    write_email
+    print('Interrupt')
+
 def step_plus():
     GPIO.output(17, GPIO.LOW)
     GPIO.output(4, GPIO.HIGH)
@@ -116,28 +126,27 @@ def write_email(numbers, ctime, error):
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
     if error:
-        msg['Subject'] = 'Temperaturfehler'
+        msg['Subject'] = 'Interrupt: Temperaturfehler'
     else:
-        #msg['Cc'] = 'anton.kraus@th-koeln.de'
-        msg['Subject'] = 'Dicer - plastik seite 2'
+        msg['Cc'] = 'anton.kraus@th-koeln.de'
+        msg['Subject'] = 'Dicer - normaler Spielwürfel'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
-        numbers[7]) + '\n' + str(ctime)
+        numbers[7]) + '\n' + 'Zeit: '+ str(ctime)
     msg.attach(MIMEText(message))
 
     server.send_message(msg)
 
 
 def logging(numbers, ctime):
-    longest_numbers = numbers[9]
 
     file = open('log_plastik_seite2', 'w')
-    file.write('Einz:' + str(numbers[0]) + ';' + str(longest_numbers[0]) + '\n')
-    file.write('Zwei:' + str(numbers[1]) + ';' + str(longest_numbers[1]) + '\n')
-    file.write("Drei: " + str(numbers[2]) + ';' + str(longest_numbers[2]) + '\n')
-    file.write("Vier: " + str(numbers[3]) + ';' + str(longest_numbers[3]) + '\n')
-    file.write("Fuenf: " + str(numbers[4]) + ';' + str(longest_numbers[4]) + '\n')
-    file.write("Sechs: " + str(numbers[5]) + ';' + str(longest_numbers[5]) + '\n')
+    file.write('Einz:' + str(numbers[0]) + '\n')
+    file.write('Zwei:' + str(numbers[1]) + '\n')
+    file.write("Drei: " + str(numbers[2]) + '\n')
+    file.write("Vier: " + str(numbers[3]) + '\n')
+    file.write("Fuenf: " + str(numbers[4]) + '\n')
+    file.write("Sechs: " + str(numbers[5]) + '\n')
     file.write('Fehler: ' + str(numbers[6]) + '\n')
     file.write('Gesamt: ' + str(numbers[7]) + '\n')
     file.write('Standardabw: ' + str(numbers[8]) + '\n')
@@ -221,9 +230,9 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=3)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=1)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
 
     return erode
 
@@ -236,11 +245,7 @@ def counting(image, all_numbers):
     five = all_numbers[4]
     six = all_numbers[5]
     errorcnt = all_numbers[6]
-    rollnumber = all_numbers[7]
-
-    longest = all_numbers[9]
-    row = all_numbers[10]
-    last_number = all_numbers[11]
+    success_rolls= all_numbers[7]
 
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
@@ -251,8 +256,6 @@ def counting(image, all_numbers):
     for i in keypoints[0:]:
         blob_number = blob_number + 1
 
-    rollnumber += 1
-
     hough_number = hough_detector(image)
 
     if blob_number == hough_number:
@@ -260,64 +263,21 @@ def counting(image, all_numbers):
         print('DETECTED: ', number)
         cv2.putText(img_with_keypoints, str(number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                     cv2.LINE_AA)
-
-        if number == 1:
-            one += 1
-            if last_number == number:
-                row[0] += 1
-            else:
-                row[0] = 1
-        elif number == 2:
-            two += 1
-            if last_number == number:
-                row[1] += 1
-            else:
-                row[1] = 1
-        elif number == 3:
-            three += 1
-            if last_number == number:
-                row[2] += 1
-            else:
-                row[2] = 1
-        elif number == 4:
-            four += 1
-            if last_number == number:
-                row[3] += 1
-            else:
-                row[3] = 1
-        elif number == 5:
-            five += 1
-            if last_number == number:
-                row[4] += 1
-            else:
-                row[4] = 1
-        elif number == 6:
-            six += 1
-            if last_number == number:
-                row[5] += 1
-            else:
-                row[5] = 1
+        
+        
+        if blob_number > 0 and blob_number < 7:
+            raw_log = open('raw_numbers','a')
+            raw_log.write(str(number) + '\n')
+            raw_log.close()            
+            success_rolls +=1
+            all_numbers[number-1] += 1
         else:
             errorcnt = errorcnt + 1
             if error_logging is True:
-                cv2.imwrite('errors/' + str(errorcnt) + 'number_error.png', image)
+                cv2.imwrite('errors/' + str(errorcnt) + ' number_error.png', image)
 
-        if row[0] > longest[0]:
-            longest[0] = row[0]
-        if row[1] > longest[1]:
-            longest[1] = row[1]
-        if row[2] > longest[2]:
-            longest[2] = row[2]
-        if row[3] > longest[3]:
-            longest[3] = row[3]
-        if row[4] > longest[4]:
-            longest[4] = row[4]
-        if row[5] > longest[5]:
-            longest[5] = row[5]
 
-        last_number = number
     else:
-        rollnumber -= 1
         print('NOT MATCHING FILTERS')
         errorcnt = errorcnt + 1
         if error_logging is True:
@@ -326,32 +286,20 @@ def counting(image, all_numbers):
     rolled = [one, two, three, four, five, six]
     std_dev = np.std(rolled)
 
-    all_numbers[0] = one
-    all_numbers[1] = two
-    all_numbers[2] = three
-    all_numbers[3] = four
-    all_numbers[4] = five
-    all_numbers[5] = six
     all_numbers[6] = errorcnt
-    all_numbers[7] = rollnumber
+    all_numbers[7] = success_rolls
     all_numbers[8] = std_dev
-    all_numbers[9] = longest
-    all_numbers[10] = row
-    all_numbers[11] = last_number
 
     return all_numbers, img_with_keypoints
+
+
 
 now = time.time()
 
 if dicer_ready is True:
+    GPIO.add_event_detect(18, GPIO.FALLING, callback = interr, bouncetime = 200)
     print('Starting...')
 
-#    if GPIO.input(18) == 0:
-  #      write_email(numbers, ctime,1)
-   #     print('Temperature error')
-   #     break
-
-#INTERRUPPT
 
 while dicer_ready is True:
     if gpios:
@@ -367,13 +315,12 @@ while dicer_ready is True:
             GPIO.output(4, GPIO.LOW)
             time.sleep(steptime)
 
-        time.sleep(0.8)  # Kurze Pause, damit Würfel ruhig liegen kann
+        time.sleep(0.6)  # Kurze Pause, damit Würfel ruhig liegen kann
     position_correct = False
 
     real_image, pos_img = get_images()  # Aufnahme machen
 
     while position_correct is not True and gpios is True:
-
         real_image, pos_img = get_images()
         #cv2.imshow('pos', pos_img)
     
@@ -426,7 +373,7 @@ while dicer_ready is True:
         write_email(numbers, ctime,0)
 
     print('=================')
-    print(ctime)
+    print('Time: ' + str(ctime))
     print('One: ', numbers[0])
     print('Two: ', numbers[1])
     print('Three: ', numbers[2])
@@ -434,7 +381,7 @@ while dicer_ready is True:
     print('Five: ', numbers[4])
     print('Six: ', numbers[5])
     print('Errors: ', numbers[6])
-    print('All rolls: ', numbers[7])
+    print('Success rolls: ', numbers[7])
     print('Deviation: ', numbers[8])
     print('=================')
 
@@ -442,6 +389,10 @@ while dicer_ready is True:
     #cv2.waitKey(100)
     if cv2.waitKey(300) & 0xFF == ord('q'):  # Q drücken, zum beenden
         break
+    
+if interrupted == True:
+    write_email(numbers, ctime,1)
 
 cap.release()
 cv2.destroyAllWindows()
+print('finished')
