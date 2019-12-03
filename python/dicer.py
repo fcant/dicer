@@ -129,7 +129,7 @@ def write_email(numbers, ctime, error):
         msg['Subject'] = 'Interrupt: Temperaturfehler'
     else:
         msg['Cc'] = 'anton.kraus@th-koeln.de'
-        msg['Subject'] = 'Dicer - normaler Spielwürfel'
+        msg['Subject'] = 'Dicer - normaler Spielwürfel tag2'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + 'Zeit: '+ str(ctime)
@@ -140,7 +140,7 @@ def write_email(numbers, ctime, error):
 
 def logging(numbers, ctime):
 
-    file = open('log_plastik_seite2', 'w')
+    file = open('log_standard_NEUREST300', 'w')
     file.write('Einz:' + str(numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + '\n')

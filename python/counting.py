@@ -1,4 +1,4 @@
-﻿import random
+import random
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -33,15 +33,15 @@ while i < count:
         row_size += 1
     elif row_size > 1:
         rows[int(old_number)-1][row_size-1] +=1
-        print('reihe gefunden:' ,row_size,'x', old_number)
+        #print('reihe gefunden:' ,row_size,'x', old_number)
         row_size = 1
     else:
         row_size = 1
 file.close()
 
 
-if next_number is old_number:
-    print('reihe gefunden:', row_size, 'x', old_number)
+#if next_number is old_number:
+#    print('reihe gefunden:', row_size, 'x', old_number)
 
 print('gesamt:')
 for zahl in range(6):
@@ -62,7 +62,7 @@ size = 0
 
 for line in open('raw_numbers', 'r'):
     if int(line) == 1:
-        numbers[0][size] = numbers[1][size-1] + 1
+        numbers[0][size] = numbers[0][size-1] + 1
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1]
         numbers[3][size] = numbers[3][size-1]
@@ -107,17 +107,16 @@ for line in open('raw_numbers', 'r'):
 
 file.close()
 
-print(numbers)
-
-
 X = np.arange(0,size)
 
-plt.plot(X, numbers[0])
-plt.plot(X, numbers[1])
-plt.plot(X, numbers[2])
-plt.plot(X, numbers[3])
-plt.plot(X, numbers[4])
-plt.plot(X, numbers[5])
+plt.plot(X, numbers[0], label='1')
+plt.plot(X, numbers[1], label='2')
+plt.plot(X, numbers[2], label='3')
+plt.plot(X, numbers[3], label='4')
+plt.plot(X, numbers[4], label='5')
+plt.plot(X, numbers[5], label='6')
+plt.legend(loc='upper left', frameon=False)
+plt.savefig('standard_würfel_plot.png')
 plt.show()
 
 
