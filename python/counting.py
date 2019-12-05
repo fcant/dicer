@@ -15,12 +15,12 @@ rows[3] = [0] * 10
 rows[4] = [0] * 10
 rows[5] = [0] * 10
 
-file = open('raw_numbers', 'r')
+file = open('raw_number22', 'r')
 count = len(file.readlines())
 print(count)
 file.close()
 
-file = open('raw_numbers', 'r')
+file = open('raw_number22', 'r')
 old_number = 0
 next_number = 0
 row_size = 1
@@ -58,10 +58,11 @@ numbers[5] = [0] * count
 
 size = 0
 
+all_numbers = [0]*6
 
-
-for line in open('raw_numbers', 'r'):
+for line in open('raw_number22', 'r'):
     if int(line) == 1:
+        all_numbers[0] += 1
         numbers[0][size] = numbers[0][size-1] + 1
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1]
@@ -69,6 +70,7 @@ for line in open('raw_numbers', 'r'):
         numbers[4][size] = numbers[4][size-1]
         numbers[5][size] = numbers[5][size-1]
     if int(line) == 2:
+        all_numbers[1] += 1
         numbers[0][size] = numbers[0][size-1]
         numbers[1][size] = numbers[1][size-1] + 1
         numbers[2][size] = numbers[2][size-1]
@@ -76,6 +78,7 @@ for line in open('raw_numbers', 'r'):
         numbers[4][size] = numbers[4][size-1]
         numbers[5][size] = numbers[5][size-1]
     if int(line) == 3:
+        all_numbers[2] += 1
         numbers[0][size] = numbers[0][size-1]
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1] + 1
@@ -83,6 +86,7 @@ for line in open('raw_numbers', 'r'):
         numbers[4][size] = numbers[4][size-1]
         numbers[5][size] = numbers[5][size-1]
     if int(line) == 4:
+        all_numbers[3] += 1
         numbers[0][size] = numbers[0][size-1]
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1]
@@ -90,6 +94,7 @@ for line in open('raw_numbers', 'r'):
         numbers[4][size] = numbers[4][size-1]
         numbers[5][size] = numbers[5][size-1]
     if int(line) == 5:
+        all_numbers[4] += 1
         numbers[0][size] = numbers[0][size-1]
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1]
@@ -97,6 +102,7 @@ for line in open('raw_numbers', 'r'):
         numbers[4][size] = numbers[4][size-1] + 1
         numbers[5][size] = numbers[5][size-1]
     if int(line) == 6:
+        all_numbers[5] += 1
         numbers[0][size] = numbers[0][size-1]
         numbers[1][size] = numbers[1][size-1]
         numbers[2][size] = numbers[2][size-1]
@@ -106,6 +112,8 @@ for line in open('raw_numbers', 'r'):
     size += 1
 
 file.close()
+
+print(all_numbers)
 
 X = np.arange(0,size)
 

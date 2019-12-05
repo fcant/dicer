@@ -24,12 +24,12 @@ except ImportError:
 
 darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = True  # Email mit Messdaten versenden?
+send_email = False  # Email mit Messdaten versenden?
 email_log_number = 3000  # Nach wie vielen Würfen soll eine Email geschrieben werden?
 
 error_logging = False #Bild bei Fehler speichern?
 
-measures = 10 #Anzahl der Messungen: -1 für unendlich. 
+measures = -1 #Anzahl der Messungen: -1 für unendlich. 
 
 cap = cv2.VideoCapture(0)  # Bildquelle: (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
@@ -66,7 +66,7 @@ blob_params.filterByCircularity = False
 blob_params.filterByInertia = True
 blob_params.filterByConvexity = True
 
-all_numbers = [0] * 9  # [one, two, three, four, five, six, errorcnt, rollnumber, std_dev
+all_numbers = [0] * 14  # [two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, errorcnt, rollnumber, std_dev]
 
 
 def interr(channel):
@@ -120,8 +120,8 @@ def write_email(numbers, ctime, error):
         #msg['Cc'] = 'anton.kraus@th-koeln.de'
         msg['Subject'] = 'Dicer - normaler Spielwürfel tag3'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
-        numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
-        numbers[7]) + '\n' + 'Zeit: '+ str(ctime)
+        numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[11]) + ' All: ' + str(
+        numbers[12]) + '\n' + 'Zeit: '+ str(ctime)
     msg.attach(MIMEText(message))
 
     server.send_message(msg)
@@ -129,16 +129,21 @@ def write_email(numbers, ctime, error):
 
 def logging(numbers, ctime):
 
-    file = open('log_standard_tag3', 'w')
-    file.write('Einz:' + str(numbers[0]) + '\n')
-    file.write('Zwei:' + str(numbers[1]) + '\n')
-    file.write("Drei: " + str(numbers[2]) + '\n')
-    file.write("Vier: " + str(numbers[3]) + '\n')
-    file.write("Fuenf: " + str(numbers[4]) + '\n')
-    file.write("Sechs: " + str(numbers[5]) + '\n')
-    file.write('Fehler: ' + str(numbers[6]) + '\n')
-    file.write('Gesamt: ' + str(numbers[7]) + '\n')
-    file.write('Standardabw: ' + str(numbers[8]) + '\n')
+    file = open('2dice_log', 'w')
+    file.write('Zwei:' + str(numbers[0]) + '\n')
+    file.write("Drei: " + str(numbers[1]) + '\n')
+    file.write("Vier: " + str(numbers[2]) + '\n')
+    file.write("Fuenf: " + str(numbers[3]) + '\n')
+    file.write("Sechs: " + str(numbers[4]) + '\n')
+    file.write("Sieben: " + str(numbers[5]) + '\n')
+    file.write("Acht: " + str(numbers[6]) + '\n')
+    file.write("Neun: " + str(numbers[7]) + '\n')
+    file.write("Zehn: " + str(numbers[8]) + '\n')
+    file.write("Elf: " + str(numbers[9]) + '\n')
+    file.write("Zwölf: " + str(numbers[10]) + '\n')
+    file.write('Fehler: ' + str(numbers[11]) + '\n')
+    file.write('Gesamt: ' + str(numbers[12]) + '\n')
+    file.write('Standardabw: ' + str(numbers[13]) + '\n')
     file.write('Zeit: ' + str(ctime) + '\n')
 
     file.close()
@@ -224,14 +229,9 @@ def img_processing(image_input):  # Bild vorbereitung
 
 
 def counting(image, all_numbers):
-    one = all_numbers[0]
-    two = all_numbers[1]
-    three = all_numbers[2]
-    four = all_numbers[3]
-    five = all_numbers[4]
-    six = all_numbers[5]
-    errorcnt = all_numbers[6]
-    success_rolls= all_numbers[7]
+     
+    errorcnt = all_numbers[11]
+    success_rolls= all_numbers[12]
 
     detector = cv2.SimpleBlobDetector_create(blob_params)
     keypoints = detector.detect(image)
@@ -251,12 +251,12 @@ def counting(image, all_numbers):
                     cv2.LINE_AA)
         
         
-        if blob_number > 0 and blob_number < 7:
-            raw_log = open('raw_numbers','a')
+        if blob_number > 1 and blob_number < 12:
+            raw_log = open('2dice_raw_numbers','a')
             raw_log.write(str(number) + '\n')
             raw_log.close()            
             success_rolls +=1
-            all_numbers[number-1] += 1
+            all_numbers[number-2] += 1
         else:
             errorcnt = errorcnt + 1
             if error_logging is True:
@@ -269,12 +269,14 @@ def counting(image, all_numbers):
         if error_logging is True:
             cv2.imwrite('errors/' + str(errorcnt) + ' matching_error.png', image)
 
-    rolled = [one, two, three, four, five, six]
-    std_dev = np.std(rolled)
+    #rolled = [one, two, three, four, five, six]
+    #std_dev = np.std(rolled)
+    
+    std_dev = -1 # Standardabweichung funktionert noch nicht
 
-    all_numbers[6] = errorcnt
-    all_numbers[7] = success_rolls
-    all_numbers[8] = std_dev
+    all_numbers[11] = errorcnt
+    all_numbers[12] = success_rolls
+    all_numbers[13] = std_dev
 
     return all_numbers, img_with_keypoints
 
@@ -335,26 +337,30 @@ while dicer_ready is True:
 
     ctime = clock(now)
 
-    if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
+    if (numbers[12] % 10) == 0:  # Nach 10 Messungen ins log schreiben
         logging(numbers, ctime)
 
-    if send_email is True and (numbers[7] % email_log_number) == 0:
+    if send_email is True and (numbers[12] % email_log_number) == 0:
         write_email(numbers, ctime,0)
 
     print('=================')
     print('Time: ' + str(ctime))
-    print('One: ', numbers[0])
     print('Two: ', numbers[1])
     print('Three: ', numbers[2])
     print('Four: ', numbers[3])
     print('Five: ', numbers[4])
-    print('Six: ', numbers[5])
-    print('Errors: ', numbers[6])
-    print('Success rolls: ', numbers[7])
-    print('Deviation: ', numbers[8])
+    print('Seven: ', numbers[5])
+    print('Eight: ', numbers[6])
+    print('Nine: ', numbers[7])
+    print('Ten: ', numbers[8])
+    print('Eleven: ', numbers[9])
+    print('Twelve: ', numbers[10])
+    print('Errors: ', numbers[11])
+    print('Success rolls: ', numbers[12])
+    print('Deviation: ', numbers[13])
     print('=================')
 
-    if numbers[7] == measures:
+    if numbers[12] == measures:
         break
 
     if cv2.waitKey(200) & 0xFF == ord('q'):  # Q drücken, zum beenden (am besten gedrückt halten, bis beendet wurde)
