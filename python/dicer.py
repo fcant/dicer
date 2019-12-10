@@ -20,19 +20,25 @@ except ImportError:
     print('WARNING - no GPIOS found')
 
 
-###########################################################################################################################
+##PARAMETERS#################################################################################################################
 
 darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = True  # Email mit Messdaten versenden?
-email_log_number = 3000  # Nach wie vielen Würfen soll eine Email geschrieben werden?
+send_email = False  # Email mit Messdaten versenden?
+email_log_number = 3000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = False #Bild bei Fehler speichern?
 
-measures = 10 #Anzahl der Messungen: -1 für unendlich. 
+measures = -1 #Anzahl der Messungen: -1 für unendlich
+
+#Uhrzeit, wenn automatisch beendet werden soll: 
+endtime_hr = 21
+endtime_min = 45
 
 cap = cv2.VideoCapture(0)  # Bildquelle: (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
+
+# Bei Fehlerhaften Bildern, Iterationen im img_processing einstellen
 ###########################################################################################################################
 
 print('Setting up...')
@@ -50,7 +56,7 @@ if ret is not True: #Wenn Kamera nicht geht, Dummy Image laden
     cv2.imshow('Press any key to exit', grey)
     print('Error - stopping')
     cv2.waitKey()  # Taste drücken, zum beenden
-elif GPIO.input(18) == 0: # Temperaturreais  prüfen
+elif GPIO.input(18) == 0 and gpios == True: # Temperaturreais  prüfen wenn RPi vorhanden
     print('Temperature relay is offline, stopping')
 else:
     dicer_ready = True
@@ -62,9 +68,10 @@ blob_params = cv2.SimpleBlobDetector_Params()
 blob_params.filterByColor = True
 blob_params.filterByArea = True
 blob_params.minArea = 100
-blob_params.filterByCircularity = False
-blob_params.filterByInertia = True
-blob_params.filterByConvexity = True
+blob_params.filterByCircularity = True
+blob_params.minCircularity = 0.7
+blob_params.filterByInertia = False
+blob_params.filterByConvexity = False
 
 all_numbers = [0] * 9  # [one, two, three, four, five, six, errorcnt, rollnumber, std_dev
 
@@ -280,7 +287,7 @@ def counting(image, all_numbers):
 
 
 
-now = time.time()
+start_time = time.time()
 
 if dicer_ready is True: # Interrupt initialisieren
     GPIO.add_event_detect(18, GPIO.FALLING, callback = interr, bouncetime = 200)
@@ -288,6 +295,11 @@ if dicer_ready is True: # Interrupt initialisieren
 
 
 while dicer_ready is True:
+    localtime = time.localtime(time.time())
+    if localtime.tm_hour >= endtime_hr and localtime.tm_min >= endtime_min:
+        dicer_ready = False
+    
+    
     if gpios:
         for i in range(3200):
 
@@ -333,7 +345,7 @@ while dicer_ready is True:
     cv2.imshow('blob detector', blob_img)
     cv2.imshow('Press Q to exit', real_image)
 
-    ctime = clock(now)
+    ctime = clock(start_time)
 
     if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
         logging(numbers, ctime)
@@ -362,9 +374,9 @@ while dicer_ready is True:
     
 if interrupted == True:
     write_email(numbers, ctime,1)
-elif dicer_ready == True:
+elif dicer_ready == True and send_email == True:
     write_email(numbers, ctime,0)
     
 cap.release()
 cv2.destroyAllWindows()
-print('finished')
+print('Everything finished')
