@@ -19,6 +19,9 @@ except ImportError:
     gpios = False
     print('WARNING - no GPIOS found')
 
+##README#####################################################################################################################
+
+
 
 ##PARAMETERS#################################################################################################################
 
@@ -32,7 +35,7 @@ error_logging = False #Bild bei Fehler speichern?
 measures = -1 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll: 
-endtime_hr = 21
+endtime_hr = 22
 endtime_min = 45
 
 cap = cv2.VideoCapture(0)  # Bildquelle: (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
@@ -136,7 +139,7 @@ def write_email(numbers, ctime, error):
 
 def logging(numbers, ctime):
 
-    file = open('log_standard_tag3', 'w')
+    file = open('log_standard_tag4', 'w')
     file.write('Einz:' + str(numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + '\n')
@@ -166,16 +169,16 @@ def get_images():
     real_image = frame[y:y + h, x:x + w]
     grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('input', grey)
-    #cv2.imwrite('grey.png',grey)
-    y = 115
-    h = 20
+    cv2.imwrite('real_image.png',frame)
+    y = 120
+    h = 15
 
     pos_img = frame[y:y + h, x:x + w]
     pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
     #cv2.imwrite('pos_raw.png',pos_img)
     ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
     #cv2.imshow('pos', pos_img)
-    #cv2.imwrite('grey.png',grey)
+    cv2.imwrite('pos.png',pos_img)
     return grey, pos_img
 
 
@@ -259,7 +262,7 @@ def counting(image, all_numbers):
         
         
         if blob_number > 0 and blob_number < 7:
-            raw_log = open('raw_numbers','a')
+            raw_log = open('raw_numbers255','a')
             raw_log.write(str(number) + '\n')
             raw_log.close()            
             success_rolls +=1
@@ -372,9 +375,9 @@ while dicer_ready is True:
     if cv2.waitKey(200) & 0xFF == ord('q'):  # Q drücken, zum beenden (am besten gedrückt halten, bis beendet wurde)
         break
     
-if interrupted == True:
+if interrupted == True: #wenn Interrupt (Temperaturfehler) ausgelöst wurde
     write_email(numbers, ctime,1)
-elif dicer_ready == True and send_email == True:
+elif dicer_ready == True and send_email == True: #wenn Messung normal beednet wurde
     write_email(numbers, ctime,0)
     
 cap.release()
