@@ -20,14 +20,15 @@ except ImportError:
     print('WARNING - no GPIOS found')
 
 ##README#####################################################################################################################
-
-
-
+# Email: Zeile 120
+# 
+# 
+# 
 ##PARAMETERS#################################################################################################################
 
 darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = False  # Email mit Messdaten versenden?
+send_email = True  # Email mit Messdaten versenden?
 email_log_number = 3000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = False #Bild bei Fehler speichern?
@@ -128,7 +129,7 @@ def write_email(numbers, ctime, error):
         msg['Subject'] = 'Interrupt: Temperaturfehler'
     else:
         #msg['Cc'] = 'anton.kraus@th-koeln.de'
-        msg['Subject'] = 'Dicer - normaler Spielwürfel tag3'
+        msg['Subject'] = 'Dicer - normaler Spielwürfel 2'
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + 'Zeit: '+ str(ctime)
@@ -139,7 +140,7 @@ def write_email(numbers, ctime, error):
 
 def logging(numbers, ctime):
 
-    file = open('log_standard_tag4', 'w')
+    file = open('log_standard_2', 'w')
     file.write('Einz:' + str(numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + '\n')
@@ -169,7 +170,7 @@ def get_images():
     real_image = frame[y:y + h, x:x + w]
     grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('input', grey)
-    cv2.imwrite('real_image.png',frame)
+    #cv2.imwrite('real_image.png',frame)
     y = 120
     h = 15
 
@@ -178,7 +179,7 @@ def get_images():
     #cv2.imwrite('pos_raw.png',pos_img)
     ret, pos_img = cv2.threshold(pos_img, 245, 255, cv2.THRESH_BINARY)
     #cv2.imshow('pos', pos_img)
-    cv2.imwrite('pos.png',pos_img)
+    #cv2.imwrite('pos.png',pos_img)
     return grey, pos_img
 
 
@@ -209,10 +210,10 @@ def hough_detector(input_image):
 def img_processing(image_input):  # Bild vorbereitung
 
     ret, binary_image = cv2.threshold(image_input, 230, 255,
-                                      cv2.THRESH_BINARY)  # Schwellenwertbild abspeichern
+                                      cv2.THRESH_BINARY)  # Schwellenwertbild
 
     if not darknumbers:
-        binary_image = cv2.bitwise_not(binary_image)
+        binary_image = cv2.bitwise_not(binary_image) # Bei dunklen Würfelaugen, Bild invertieren
 
     # cv2.imshow('binary', binary_image)
 
@@ -262,7 +263,7 @@ def counting(image, all_numbers):
         
         
         if blob_number > 0 and blob_number < 7:
-            raw_log = open('raw_numbers255','a')
+            raw_log = open('raw_numbers_2','a')
             raw_log.write(str(number) + '\n')
             raw_log.close()            
             success_rolls +=1
@@ -346,7 +347,7 @@ while dicer_ready is True:
     processed_img = img_processing(real_image)
     numbers, blob_img = counting(processed_img, all_numbers)
     cv2.imshow('blob detector', blob_img)
-    cv2.imshow('Press Q to exit', real_image)
+    cv2.imshow('Hold Q to exit', real_image)
 
     ctime = clock(start_time)
 
