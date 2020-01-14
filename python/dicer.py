@@ -29,19 +29,19 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_standard_2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_numbers_2' # Name der Datei, in der alle würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer test' # Emailbetreff
+log_name = 'log_standard_holz' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_numbers_holz' # Name der Datei, in der alle würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer holz' # Emailbetreff
 
 
-darknumbers = False  # Dunkle Würfelaugen?
+darknumbers = True  # Dunkle Würfelaugen?
 
-send_email = False  # Email mit Messdaten versenden?
-email_log_number = 10  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
+send_email = True  # Email mit Messdaten versenden?
+email_log_number = 5000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = -1 #Anzahl der Messungen: -1 für unendlich
+measures = 15595 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -191,9 +191,9 @@ def get_images():
     return grey, pos_img
 
 
-def hough_detector(input_image):
+def hough_detector(input_img):
     #cv2.imshow('hough_input', input_image)
-    img = cv2.medianBlur(input_image, 5)  # Bild gätten mit Gauß
+    img = cv2.medianBlur(input_img, 5)  # Bild gätten mit Gauß
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
     circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=220, param2=10, minRadius=5,
                                maxRadius=30)  # param1: Schwellenwert, param2: muss man ausprobieren
@@ -228,8 +228,8 @@ def img_processing(image_input):  # Bild vorbereitung
 
         cv2.floodFill(binary_image, mask, (0,0), 255);
         
-    else
-        binary_image = cv2.bitwise_not(binary_image) # Bei Hellen Würfelaugen reicht invertieren des Bildes
+    else:
+        binary_image = cv2.bitwise_not(binary_image) # Bei hellen Würfelaugen reicht invertieren des Bildes
 
     # cv2.imshow('binary', binary_image)
 
@@ -269,13 +269,15 @@ def counting(image, all_numbers, dice_image, raw_numbers_name):
     for i in keypoints[0:]:
         blob_number = blob_number + 1
 
+    cv2.putText(img_with_keypoints, str(blob_number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
+                    cv2.LINE_AA)
+
     hough_number = hough_detector(image)
 
     if blob_number == hough_number:
         number = blob_number
         print('DETECTED: ', number)
-        cv2.putText(img_with_keypoints, str(number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
-                    cv2.LINE_AA)
+ 
         
         
         if blob_number > 0 and blob_number < 7:

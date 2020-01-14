@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-datei_name = 'raw_numbers'
+datei_name = 'raw_numbers_holz'
 
 i = 0
 rows = [0] * 6
