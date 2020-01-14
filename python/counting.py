@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
+datei_name = 'raw_numbers'
 
 i = 0
 rows = [0] * 6
@@ -15,12 +15,12 @@ rows[3] = [0] * 10
 rows[4] = [0] * 10
 rows[5] = [0] * 10
 
-file = open('raw_numbers', 'r')
+file = open(datei_name, 'r')
 count = len(file.readlines())
 print(count)
 file.close()
 
-file = open('raw_numbers', 'r')
+file = open(datei_name, 'r')
 old_number = 0
 next_number = 0
 row_size = 1
@@ -60,7 +60,7 @@ size = 0
 
 all_numbers = [0]*6
 
-for line in open('raw_numbers', 'r'):
+for line in open(datei_name, 'r'):
     if int(line) == 1:
         all_numbers[0] += 1
         numbers[0][size] = numbers[0][size-1] + 1

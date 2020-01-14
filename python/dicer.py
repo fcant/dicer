@@ -23,21 +23,29 @@ except ImportError:
 # Email: Zeile 120
 # 
 # 
-# 
+#
+
+
+
 ##PARAMETERS#################################################################################################################
+
+log_name = 'log_standard_2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_numbers_2' # Name der Datei, in der alle würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer test' # Emailbetreff
+
 
 darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = True  # Email mit Messdaten versenden?
-email_log_number = 3000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
+send_email = False  # Email mit Messdaten versenden?
+email_log_number = 10  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
-error_logging = False #Bild bei Fehler speichern?
+error_logging = True #Bild bei Fehler speichern?
 
 measures = -1 #Anzahl der Messungen: -1 für unendlich
 
-#Uhrzeit, wenn automatisch beendet werden soll: 
-endtime_hr = 22
-endtime_min = 45
+#Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
+#endtime_hr = 22
+#endtime_min = 45
 
 cap = cv2.VideoCapture(0)  # Bildquelle: (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
@@ -118,7 +126,7 @@ def clock(now):
     return showTime
 
 
-def write_email(numbers, ctime, error):
+def write_email(numbers, ctime, error, header_name):
     server = smtplib.SMTP('mail.gmx.net', 587)
     server.starttls()
     server.login('python-email@gmx.de', 'bojack123.')
@@ -126,10 +134,10 @@ def write_email(numbers, ctime, error):
     msg['From'] = 'python-email@gmx.de'
     msg['To'] = 'fabio.canterino@smail.th-koeln.de'
     if error:
-        msg['Subject'] = 'Interrupt: Temperaturfehler'
+        msg['Subject'] = 'Error'
     else:
         #msg['Cc'] = 'anton.kraus@th-koeln.de'
-        msg['Subject'] = 'Dicer - normaler Spielwürfel 2'
+        msg['Subject'] = header_name
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
         numbers[7]) + '\n' + 'Zeit: '+ str(ctime)
@@ -138,9 +146,9 @@ def write_email(numbers, ctime, error):
     server.send_message(msg)
 
 
-def logging(numbers, ctime):
+def logging(numbers, ctime, log_name):
 
-    file = open('log_standard_2', 'w')
+    file = open(log_name, 'w')
     file.write('Einz:' + str(numbers[0]) + '\n')
     file.write('Zwei:' + str(numbers[1]) + '\n')
     file.write("Drei: " + str(numbers[2]) + '\n')
@@ -167,8 +175,8 @@ def get_images():
     x = 220
     w = 240
 
-    real_image = frame[y:y + h, x:x + w]
-    grey = cv2.cvtColor(real_image, cv2.COLOR_BGR2GRAY)
+    dice_image = frame[y:y + h, x:x + w]
+    grey = cv2.cvtColor(dice_image, cv2.COLOR_BGR2GRAY)
     #cv2.imshow('input', grey)
     #cv2.imwrite('real_image.png',frame)
     y = 120
@@ -184,10 +192,10 @@ def get_images():
 
 
 def hough_detector(input_image):
-    # cv2.imshow('hough_input', input_image)
+    #cv2.imshow('hough_input', input_image)
     img = cv2.medianBlur(input_image, 5)  # Bild gätten mit Gauß
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=220, param2=10, minRadius=10,
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=220, param2=10, minRadius=5,
                                maxRadius=30)  # param1: Schwellenwert, param2: muss man ausprobieren
 
     h_number = 0
@@ -212,8 +220,16 @@ def img_processing(image_input):  # Bild vorbereitung
     ret, binary_image = cv2.threshold(image_input, 230, 255,
                                       cv2.THRESH_BINARY)  # Schwellenwertbild
 
-    if not darknumbers:
-        binary_image = cv2.bitwise_not(binary_image) # Bei dunklen Würfelaugen, Bild invertieren
+    if darknumbers: # Wenn dunkle Würfelaugen, dann Bereich um den Würfel weiß machen
+        w = binary_image.shape[1] #y
+        h = binary_image.shape[0] #x
+
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+
+        cv2.floodFill(binary_image, mask, (0,0), 255);
+        
+    else
+        binary_image = cv2.bitwise_not(binary_image) # Bei Hellen Würfelaugen reicht invertieren des Bildes
 
     # cv2.imshow('binary', binary_image)
 
@@ -234,7 +250,7 @@ def img_processing(image_input):  # Bild vorbereitung
     return erode
 
 
-def counting(image, all_numbers):
+def counting(image, all_numbers, dice_image, raw_numbers_name):
     one = all_numbers[0]
     two = all_numbers[1]
     three = all_numbers[2]
@@ -263,7 +279,7 @@ def counting(image, all_numbers):
         
         
         if blob_number > 0 and blob_number < 7:
-            raw_log = open('raw_numbers_2','a')
+            raw_log = open(raw_numbers_name,'a')
             raw_log.write(str(number) + '\n')
             raw_log.close()            
             success_rolls +=1
@@ -271,15 +287,16 @@ def counting(image, all_numbers):
         else:
             errorcnt = errorcnt + 1
             if error_logging is True:
-                cv2.imwrite('errors/' + str(errorcnt) + ' number_error.png', image)
-
+                cv2.imwrite('errors/' + str(errorcnt) + ' number_error_binary.png', image)
+                cv2.imwrite('errors/' + str(errorcnt) + ' number_error_real.png', dice_image)
 
     else:
         print('NOT MATCHING FILTERS')
         errorcnt = errorcnt + 1
         if error_logging is True:
             cv2.imwrite('errors/' + str(errorcnt) + ' matching_error.png', image)
-
+            cv2.imwrite('errors/' + str(errorcnt) + ' matching_error_real.png', dice_image)
+            
     rolled = [one, two, three, four, five, six]
     std_dev = np.std(rolled)
 
@@ -287,7 +304,9 @@ def counting(image, all_numbers):
     all_numbers[7] = success_rolls
     all_numbers[8] = std_dev
 
-    return all_numbers, img_with_keypoints
+    cv2.imshow('blob detector', img_with_keypoints)
+
+    return all_numbers
 
 
 
@@ -299,9 +318,9 @@ if dicer_ready is True: # Interrupt initialisieren
 
 
 while dicer_ready is True:
-    localtime = time.localtime(time.time())
-    if localtime.tm_hour >= endtime_hr and localtime.tm_min >= endtime_min:
-        dicer_ready = False
+    #localtime = time.localtime(time.time())
+    #if localtime.tm_hour >= endtime_hr and localtime.tm_min >= endtime_min: # Abschaltung nach Uhrzeit
+    #    dicer_ready = False
     
     
     if gpios:
@@ -345,17 +364,16 @@ while dicer_ready is True:
         #cv2.imwrite('newpos.png',pos_img)
 
     processed_img = img_processing(real_image)
-    numbers, blob_img = counting(processed_img, all_numbers)
-    cv2.imshow('blob detector', blob_img)
+    numbers = counting(processed_img, all_numbers, real_image, raw_numbers_name)    
     cv2.imshow('Hold Q to exit', real_image)
 
     ctime = clock(start_time)
 
     if (numbers[7] % 10) == 0:  # Nach 10 Messungen ins log schreiben
-        logging(numbers, ctime)
+        logging(numbers, ctime, log_name)
 
-    if send_email is True and (numbers[7] % email_log_number) == 0:
-        write_email(numbers, ctime,0)
+    if send_email is True and (numbers[7] % email_log_number) == 0: #Bei gewünschter Anzahl Messungen eine Email schreiben
+        write_email(numbers, ctime,0, email_header)
 
     print('=================')
     print('Time: ' + str(ctime))
@@ -377,9 +395,9 @@ while dicer_ready is True:
         break
     
 if interrupted == True: #wenn Interrupt (Temperaturfehler) ausgelöst wurde
-    write_email(numbers, ctime,1)
-elif dicer_ready == True and send_email == True: #wenn Messung normal beednet wurde
-    write_email(numbers, ctime,0)
+    write_email(numbers, ctime,1, email_header)
+elif dicer_ready == True and send_email == True: #wenn Messung normal beendet wurde
+    write_email(numbers, ctime,0, email_header)
     
 cap.release()
 cv2.destroyAllWindows()
