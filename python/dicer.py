@@ -29,19 +29,19 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_standard_holz' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_numbers_holz' # Name der Datei, in der alle würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer holz' # Emailbetreff
+log_name = 'log_standard_holz2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_numbers_holz2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer holz2' # Emailbetreff
 
 
 darknumbers = True  # Dunkle Würfelaugen?
 
-send_email = True  # Email mit Messdaten versenden?
+send_email = False  # Email mit Messdaten versenden?
 email_log_number = 5000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = 15595 #Anzahl der Messungen: -1 für unendlich
+measures = -1 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -95,7 +95,6 @@ def interr(channel):
     gpios = False
     dicer_ready = False
     interrupted = True
-    write_email
     print('Interrupt')
     
 
@@ -195,7 +194,7 @@ def hough_detector(input_img):
     #cv2.imshow('hough_input', input_image)
     img = cv2.medianBlur(input_img, 5)  # Bild gätten mit Gauß
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=220, param2=10, minRadius=5,
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=200, param2=10, minRadius=5,
                                maxRadius=30)  # param1: Schwellenwert, param2: muss man ausprobieren
 
     h_number = 0
@@ -395,7 +394,7 @@ while dicer_ready is True:
 
     if cv2.waitKey(200) & 0xFF == ord('q'):  # Q drücken, zum beenden (am besten gedrückt halten, bis beendet wurde)
         break
-    
+
 if interrupted == True: #wenn Interrupt (Temperaturfehler) ausgelöst wurde
     write_email(numbers, ctime,1, email_header)
 elif dicer_ready == True and send_email == True: #wenn Messung normal beendet wurde
