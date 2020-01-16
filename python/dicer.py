@@ -29,19 +29,19 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_standard_holz2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_numbers_holz2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer holz2' # Emailbetreff
+log_name = 'log_casino1' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_casino1' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer - casino1' # Emailbetreff
 
 
-darknumbers = True  # Dunkle Würfelaugen?
+darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = False  # Email mit Messdaten versenden?
+send_email = True  # Email mit Messdaten versenden?
 email_log_number = 5000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = -1 #Anzahl der Messungen: -1 für unendlich
+measures = 20000 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -135,7 +135,7 @@ def write_email(numbers, ctime, error, header_name):
     if error:
         msg['Subject'] = 'Error'
     else:
-        #msg['Cc'] = 'anton.kraus@th-koeln.de'
+        msg['Cc'] = 'anton.kraus@th-koeln.de'
         msg['Subject'] = header_name
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
@@ -181,6 +181,7 @@ def get_images():
     y = 120
     h = 15
 
+
     pos_img = frame[y:y + h, x:x + w]
     pos_img = cv2.cvtColor(pos_img, cv2.COLOR_BGR2GRAY)
     #cv2.imwrite('pos_raw.png',pos_img)
@@ -219,6 +220,8 @@ def img_processing(image_input):  # Bild vorbereitung
     ret, binary_image = cv2.threshold(image_input, 230, 255,
                                       cv2.THRESH_BINARY)  # Schwellenwertbild
 
+    #cv2.imwrite('binary1.png', binary_image)
+
     if darknumbers: # Wenn dunkle Würfelaugen, dann Bereich um den Würfel weiß machen
         w = binary_image.shape[1] #y
         h = binary_image.shape[0] #x
@@ -230,7 +233,7 @@ def img_processing(image_input):  # Bild vorbereitung
     else:
         binary_image = cv2.bitwise_not(binary_image) # Bei hellen Würfelaugen reicht invertieren des Bildes
 
-    # cv2.imshow('binary', binary_image)
+    #cv2.imwrite('binary2.png', binary_image)
 
     kernel_round = np.array([[0, 0, 0, 1, 1, 1, 0, 0, 0],
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -242,9 +245,9 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=1)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=2)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
     return erode
 
