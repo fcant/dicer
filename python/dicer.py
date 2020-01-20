@@ -24,15 +24,16 @@ except ImportError:
 # 
 # 
 #
-
+#
+#
+# Bei Fehlerhaften Bildern, Iterationen im img_processing einstellen
 
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_casino1' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_casino1' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer - casino1' # Emailbetreff
-
+log_name = 'log_casino2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_casino2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer - casino2' # Emailbetreff
 
 darknumbers = False  # Dunkle Würfelaugen?
 
@@ -49,8 +50,6 @@ measures = 20000 #Anzahl der Messungen: -1 für unendlich
 
 cap = cv2.VideoCapture(0)  # Bildquelle: (Zahl ändern, falls mehrere Kameras angeschlossen sind (auch interne Webcams))
 
-
-# Bei Fehlerhaften Bildern, Iterationen im img_processing einstellen
 ###########################################################################################################################
 
 print('Setting up...')
@@ -135,7 +134,7 @@ def write_email(numbers, ctime, error, header_name):
     if error:
         msg['Subject'] = 'Error'
     else:
-        msg['Cc'] = 'anton.kraus@th-koeln.de'
+        #msg['Cc'] = 'anton.kraus@th-koeln.de'
         msg['Subject'] = header_name
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
@@ -196,7 +195,7 @@ def hough_detector(input_img):
     img = cv2.medianBlur(input_img, 5)  # Bild gätten mit Gauß
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)  # Farbraum umwandeln (nur für die farbigen Kreise)
     circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, param1=200, param2=10, minRadius=5,
-                               maxRadius=30)  # param1: Schwellenwert, param2: muss man ausprobieren
+                               maxRadius=25)  # param1: Schwellenwert, param2: muss man ausprobieren
 
     h_number = 0
 
@@ -330,10 +329,10 @@ while dicer_ready is True:
     if gpios:
         for i in range(3200):
 
-            if i > 3100:  # die letzten Schritte abbremsen
-                steptime = steptime + global_steptime * 0.1
-            else:
-                steptime = global_steptime
+            #if i > 3100:  # die letzten Schritte abbremsen
+            #    steptime = steptime + global_steptime * 0.1
+            #else:
+            steptime = global_steptime
 
             step_plus(steptime)
 
