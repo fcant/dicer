@@ -31,14 +31,14 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_casino2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_casino2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer - casino2' # Emailbetreff
+log_name = 'log_casino1' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_casino1' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer - casino1' # Emailbetreff
 
 darknumbers = False  # Dunkle Würfelaugen?
 
 send_email = True  # Email mit Messdaten versenden?
-email_log_number = 5000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
+email_log_number = 6000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
@@ -244,9 +244,9 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=2)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=1)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
 
     return erode
 
