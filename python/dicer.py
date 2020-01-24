@@ -42,7 +42,7 @@ email_log_number = 6000  # Nach wie vielen Würfen soll jeweils eine Email gesch
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = 20000 #Anzahl der Messungen: -1 für unendlich
+measures = 15551 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -244,9 +244,9 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=1)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image, kernel_round, iterations=2)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
     return erode
 
