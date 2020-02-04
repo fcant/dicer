@@ -31,18 +31,18 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_holz1' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_holz1' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer - holz1' # Emailbetreff
+log_name = 'log_holz2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_holz2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer - holz2' # Emailbetreff
 
 darknumbers = True  # Dunkle Würfelaugen?
 
-send_email = True  # Email mit Messdaten versenden?
+send_email = False  # Email mit Messdaten versenden?
 email_log_number = 6000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = 18000 #Anzahl der Messungen: -1 für unendlich
+measures = 14000 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -216,9 +216,12 @@ def hough_detector(input_img):
 
 def img_processing(image_input):  # Bild vorbereitung
 
-    ret, binary_image = cv2.threshold(image_input, 240, 255,
+
+    image_input = cv2.medianBlur(image_input, 3)  # Bild gätten mit Gauß
+    ret, binary_image = cv2.threshold(image_input, 220, 255,
                                       cv2.THRESH_BINARY)  # Schwellenwertbild
 
+    
     #cv2.imwrite('binary1.png', binary_image)
 
     if darknumbers: # Wenn dunkle Würfelaugen, dann Bereich um den Würfel weiß machen
@@ -244,7 +247,7 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image, kernel_round, iterations=1)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image,kernel_round, iterations=1)  # Dilatation anwenden
 
     erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
 
@@ -275,7 +278,9 @@ def counting(image, all_numbers, dice_image, raw_numbers_name):
 
     hough_number = hough_detector(image)
 
-    if blob_number == hough_number:
+    
+    if blob_number < 7:
+    #if blob_number == hough_number:
         number = blob_number
         print('DETECTED: ', number)
  

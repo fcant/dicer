@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-datei_name = 'raw_casino1'
+datei_name = 'raw_holz2'
 
 i = 0
 rows = [0] * 6
