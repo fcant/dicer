@@ -31,18 +31,18 @@ except ImportError:
 
 ##PARAMETERS#################################################################################################################
 
-log_name = 'log_holz2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
-raw_numbers_name = 'raw_holz2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
-email_header = 'dicer - holz2' # Emailbetreff
+log_name = 'log_seite2' # Name der Log Datei (Zusammenfassung der Messreihe): Wird NICHT fortgesetzt
+raw_numbers_name = 'raw_seite2' # Name der Datei, in der alle Würfe einzeln gespeichert werden: Wird fortgesetzt
+email_header = 'dicer - seite2' # Emailbetreff
 
-darknumbers = True  # Dunkle Würfelaugen?
+darknumbers = False  # Dunkle Würfelaugen?
 
-send_email = False  # Email mit Messdaten versenden?
+send_email = True  # Email mit Messdaten versenden?
 email_log_number = 6000  # Nach wie vielen Würfen soll jeweils eine Email geschrieben werden?
 
 error_logging = True #Bild bei Fehler speichern?
 
-measures = 14000 #Anzahl der Messungen: -1 für unendlich
+measures = 18000 #Anzahl der Messungen: -1 für unendlich
 
 #Uhrzeit, wenn automatisch beendet werden soll (funktionert, ist aber gerade deaktiviert: Zeile 311): 
 #endtime_hr = 22
@@ -210,6 +210,7 @@ def hough_detector(input_img):
 
     cv2.putText(cimg, str(h_number), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 50), 2, cv2.LINE_AA)
     cv2.imshow('hough detector', cimg)
+    cv2.imwrite('hough detector.png', cimg)
 
     return h_number
 
@@ -247,9 +248,9 @@ def img_processing(image_input):  # Bild vorbereitung
                              [0, 1, 1, 1, 1, 1, 1, 1, 0],
                              [0, 0, 0, 1, 1, 1, 0, 0, 0]], dtype=np.uint8)  # Kreisförmige Maske erzeugen
 
-    dilate = cv2.dilate(binary_image,kernel_round, iterations=1)  # Dilatation anwenden
+    dilate = cv2.dilate(binary_image,kernel_round, iterations=3)  # Dilatation anwenden
 
-    erode = cv2.erode(dilate, kernel_round, iterations=1)  # Erosion anwenden
+    erode = cv2.erode(dilate, kernel_round, iterations=2)  # Erosion anwenden
 
     return erode
 
@@ -313,6 +314,7 @@ def counting(image, all_numbers, dice_image, raw_numbers_name):
     all_numbers[8] = std_dev
 
     cv2.imshow('blob detector', img_with_keypoints)
+    cv2.imwrite('blob_detector.png', img_with_keypoints)
 
     return all_numbers
 
