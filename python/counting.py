@@ -4,8 +4,7 @@ import csv
 
 import matplotlib.pyplot as plt
 
-name = 'seite2'
-
+name = 'seite2' # Dateiname, "raw" wird automatisch davor gesetzt
 datei_name = 'raw_'+name
 
 print(datei_name)
@@ -29,6 +28,9 @@ old_number = 0
 next_number = 0
 row_size = 1
 
+
+# Anzahl an aufeinanderfolgenden gleichen Zahlen wird erfasst. Aktuell werden nicht die Korrekten werte Ausgegeben, da in den Raw-Dateien die Messfehler nicht erfasst werden. 
+# So wird fälschlicherweise eine Reihe erkannt, obwohl dazwischen Messfehler gewesen sein könnten. (geht bis Zeile 120)
 while i < count:
     i = i+1
     old_number = next_number
@@ -44,8 +46,6 @@ while i < count:
 file.close()
 
 
-#if next_number is old_number:
-#    print('reihe gefunden:', row_size, 'x', old_number)
 
 print('gesamt:')
 for zahl in range(6):
@@ -116,6 +116,10 @@ for line in open(datei_name, 'r'):
     size += 1
 
 file.close()
+
+# Ende der Reihenerfassung
+
+
 
 print(all_numbers)
 
