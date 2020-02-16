@@ -1,10 +1,14 @@
 import random
 import numpy as np
+import csv
 
 import matplotlib.pyplot as plt
 
+name = 'seite2'
 
-datei_name = 'raw_holz2'
+datei_name = 'raw_'+name
+
+print(datei_name)
 
 i = 0
 rows = [0] * 6
@@ -115,6 +119,9 @@ file.close()
 
 print(all_numbers)
 
+print('Mittelwert:')
+print((all_numbers[0]+2*all_numbers[1]+3*all_numbers[2]+4*all_numbers[3]+5*all_numbers[4]+6*all_numbers[5])/size)
+
 X = np.arange(0,size)
 
 plt.plot(X, numbers[0], label='1')
@@ -124,7 +131,17 @@ plt.plot(X, numbers[3], label='4')
 plt.plot(X, numbers[4], label='5')
 plt.plot(X, numbers[5], label='6')
 plt.legend(loc='upper left', frameon=False)
-plt.savefig('standard_würfel_plot.png')
+#plt.savefig('holz1.png')
 plt.show()
 
 
+
+with open(name + '.csv', mode='w', newline='') as csv_file:
+    fieldnames = ['plot1', 'plot2', 'plot3', 'plot4', 'plot5', 'plot6']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+    writer.writeheader()
+    writer.writerow({'plot1': 0, 'plot2': 0, 'plot3': 0, 'plot4': 0, 'plot5': 0,'plot6': 0})
+    for i in range(0,size): #size
+        writer.writerow({'plot1': numbers[0][i], 'plot2': numbers[1][i], 'plot3': numbers[2][i], 'plot4': numbers[3][i], 'plot5': numbers[4][i], 'plot6': numbers[5][i]})
+    writer.writerow({'plot1': 0, 'plot2': 0, 'plot3': 0, 'plot4': 0, 'plot5': 0,'plot6': 0})
