@@ -13,21 +13,19 @@ try:  # Wenn Programm nicht auf einem Raspberry läuft, GPIOS nicht benutzen
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(17, GPIO.OUT)
     GPIO.setup(4, GPIO.OUT)
-    GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+    GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP) # internen Pull-Up aktivieren
     
 except ImportError:
     gpios = False
     print('WARNING - no GPIOS found')
 
 ##README#####################################################################################################################
-# Email: Zeile 120
-# 
-# 
-#
-#
-#
-# Bei Fehlerhaften Bildern, Iterationen im img_processing einstellen
-
+# Email: Zeile 127
+# Bildausschnitte: ab Zeile 164
+# Iterationen für Erosion und Dilatation: Zeile 255, 257
+# Hough-Detector: Zeile 193
+# Blob-Detector Parameter: Zeile 77
+# Blob-Detector Parameter: Zeile 272
 
 ##PARAMETERS#################################################################################################################
 
@@ -125,16 +123,16 @@ def clock(now):
 
 
 def write_email(numbers, ctime, error, header_name):
-    server = smtplib.SMTP('mail.gmx.net', 587)
+    server = smtplib.SMTP('SERVERADRESSE', PORTNR)
     server.starttls()
-    server.login('python-email@gmx.de', 'bojack123.')
+    server.login('LOGIN-BENUTZERNAME', 'PASSWORT')
     msg = MIMEMultipart()
-    msg['From'] = 'python-email@gmx.de'
-    msg['To'] = 'fabio.canterino@smail.th-koeln.de'
+    msg['From'] = 'ABSENDER'
+    msg['To'] = 'EMPFAENGER'
     if error:
         msg['Subject'] = 'Error'
     else:
-        #msg['Cc'] = 'anton.kraus@th-koeln.de'
+        msg['Cc'] = 'KOPIE ADRESSE'
         msg['Subject'] = header_name
     message = str(numbers[0]) + ',' + str(numbers[1]) + ',' + str(numbers[2]) + ',' + str(numbers[3]) + ',' + str(
         numbers[4]) + ',' + str(numbers[5]) + ' Err: ' + str(numbers[6]) + ' All: ' + str(
@@ -232,6 +230,10 @@ def img_processing(image_input):  # Bild vorbereitung
         mask = np.zeros((h + 2, w + 2), np.uint8)
 
         cv2.floodFill(binary_image, mask, (0,0), 255);
+            
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+       
+        cv2.floodFill(binary_image, mask, (h,w), 255);
         
     else:
         binary_image = cv2.bitwise_not(binary_image) # Bei hellen Würfelaugen reicht invertieren des Bildes
@@ -280,8 +282,7 @@ def counting(image, all_numbers, dice_image, raw_numbers_name):
     hough_number = hough_detector(image)
 
     
-    if blob_number < 7:
-    #if blob_number == hough_number:
+    if blob_number == hough_number:
         number = blob_number
         print('DETECTED: ', number)
  
